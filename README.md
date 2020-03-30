@@ -11,7 +11,7 @@ to the action using a variable expansion. For example, if the token is store as 
 the following code should be used to pass it to the action:
 ```
 
-    uses: humanitec/build-push-to-humanitec
+    uses: humanitec/build-push-to-humaniteic@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -36,7 +36,7 @@ _None._
 
 ```
 
-uses: humanitec/build-push-to-humanitec
+uses: humanitec/build-push-to-humanitec@v1
   with:
     humanitec-token: ${{ secret.HUMANITEC_TOKEN }}
     organization: awesome-company
