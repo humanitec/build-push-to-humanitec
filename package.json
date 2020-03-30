@@ -1,0 +1,22 @@
+{
+  "name": "build-push-to-humanitec",
+  "version": "1.0.0",
+  "description": "GitHub Action for easy integration with Humanitec",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint index.js docker.js humanitec.js",
+    "package": "ncc build index.js -o dist"
+  },
+  "author": "chris.stephenson@humanitec.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.0",
+    "eslint": "^6.8.0",
+    "eslint-config-google": "^0.14.0"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.3",
+    "@actions/exec": "^1.0.3",
+    "node-fetch": "^2.6.0"
+  }
+}

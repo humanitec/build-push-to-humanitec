@@ -1,0 +1,29 @@
+name: 'Build and Push to Humanitec'
+description: 'Builds a container image from a Dockerfile and then pushes it to the Humanitec registry and notifies the platform.'
+inputs:
+  humanitec-token:
+    description: 'API Token provided when you add your ci pipline in the Humanitec platform.'
+    required: true
+  organization:
+    description: 'The name of the organization that the module will be built for.'
+    required: true
+  module-name:
+    description: 'The name you want to refer to the module to in the Humanitec Platform.'
+    required: false
+    default: ''
+  dockerfile:
+    description: 'Directory containing the Dockerfile. Defaults to the root of repository.'
+    required: false
+    default: '.'
+  humanitec-registry:
+    description: 'Allows the default humanitec registry to be overidden for testing.'
+    required: false
+    default: 'registry.humanitec.io'
+  humanitec-api:
+    description: 'Allows the default humanitec api to be overidden for testing.'
+    required: false
+    default: 'api.humanitec.io'
+outputs:
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
