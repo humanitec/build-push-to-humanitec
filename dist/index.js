@@ -3429,9 +3429,9 @@ function login(username, password, server) {
  * @return {string} - The container ID assuming a successful build. falsy otherwise.
  */
 async function build(tag, dockefilePath) {
-  await exec.exec('docker', ['build', '-t', tag, dockefilePath]);
-
   try {
+    await exec.exec('docker', ['build', '-t', tag, dockefilePath]);
+
     return cp.execSync(`docker images -q "${tag}"`).toString().trim();
   } catch (err) {
     return false;
