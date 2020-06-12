@@ -58,6 +58,10 @@ async function runAction() {
   process.chdir(process.env.GITHUB_WORKSPACE);
 
   const localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
+  if (!process.env.GITHUB_REF.includes('\/heads\/')) {
+    localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
+  } 
+  
   const imageId = await docker.build(localTag, dockerfile);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');
