@@ -58,7 +58,7 @@ async function runAction() {
   process.chdir(process.env.GITHUB_WORKSPACE);
 
   const localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
-  if (!process.env.GITHUB_REF.includes('\/heads\/')) {
+  if (process.env.GITHUB_REF.includes('\/tags\/')) {
     localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
   } 
   
