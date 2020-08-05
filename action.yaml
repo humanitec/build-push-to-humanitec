@@ -23,7 +23,6 @@ inputs:
     description: 'Allows the default humanitec api to be overidden for testing.'
     required: false
     default: 'api.humanitec.io'
-outputs:
 runs:
   using: 'node12'
   main: 'dist/index.js'
