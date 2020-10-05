@@ -42,7 +42,7 @@ _Optional_ Define your own tag for the docker image to be tagged with.
 
 ### `tag_name`
 _Optional_ Use `tag_name` when you want to push tags/release by their git name (e.g. `refs/tags/MY_TAG_NAME`).  
-> CAUTION: Images produced by this feature can be override by branches with the same name - without a way to restore.
+> CAUTION: Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
 ```
 
     uses: humanitec/build-push-to-humaniteic@v1
