@@ -11,6 +11,12 @@ inputs:
     description: 'The name you want to refer to the module to in the Humanitec Platform.'
     required: false
     default: ''
+  tag:
+    description: 'Use tag when you want to bring your own tag'
+    required: false
+  tag_name:
+    description: 'Use tag_name when you want to push tags/release by their git name'
+    required: false
   dockerfile:
     description: 'Directory containing the Dockerfile. Defaults to the root of repository.'
     required: false
