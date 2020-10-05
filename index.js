@@ -63,7 +63,7 @@ async function runAction() {
   if (process.env.GITHUB_REF.includes('\/tags\/') && tag_name) {
     localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
   } 
-  if (tag !== null) {
+  if (tag) {
     localTag = `${orgId}/${moduleName}:${tag}`;
   } 
   
