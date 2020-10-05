@@ -60,14 +60,17 @@ async function runAction() {
   process.chdir(process.env.GITHUB_WORKSPACE);
 
   var localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
-  console.log(localTag);
+  core.info(`LocalTag SHA`);
+  core.debug(localTag);
   if (process.env.GITHUB_REF.includes('\/tags\/') && tag_name) {
     localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
-    console.log(localTag);
+    core.info(`LocalTag tag_name=true`);
+    core.debug(localTag);
   } 
   if (tag) {
     localTag = `${orgId}/${moduleName}:${tag}`;
-    console.log(localTag);
+    core.info(`LocalTag tag=custom`);
+    core.debug(localTag);
   } 
   
   const imageId = await docker.build(localTag, dockerfile);
@@ -77,7 +80,8 @@ async function runAction() {
   }
 
   const remoteTag = `${registryHost}/${localTag}`;
-  console.log(remoteTag);
+  core.info(`RemoteTag`);
+  core.debug(remoteTag);
   if (!docker.push(imageId, remoteTag)) {
     core.setFailed('Unable to push image to registry');
     return;
