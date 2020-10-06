@@ -59,8 +59,6 @@ async function runAction() {
 
   process.chdir(process.env.GITHUB_WORKSPACE);
 
-  
-  //var localTag = `${orgId}/${moduleName}:${tag}`;
   if (process.env.GITHUB_REF.includes('\/tags\/') && tag_name) {
     const localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
   } 
@@ -70,7 +68,6 @@ async function runAction() {
   else {
     const localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
   }
-
   
   const imageId = await docker.build(localTag, dockerfile);
   if (!imageId) {
