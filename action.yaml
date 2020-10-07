@@ -14,8 +14,8 @@ inputs:
   tag:
     description: 'Use tag when you want to bring your own tag'
     required: false
-  tag_name:
-    description: 'Use tag_name when you want to push tags/release by their git name'
+  auto-tag:
+    description: 'Use auto-tag when you want to push tags/release by their git name'
     required: false
   dockerfile:
     description: 'Directory containing the Dockerfile. Defaults to the root of repository.'

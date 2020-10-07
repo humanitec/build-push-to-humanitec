@@ -15,7 +15,7 @@ async function runAction() {
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || null;
-  const tag_name = core.getInput('tag_name') || false;
+  const autoTag = core.getInput('auto-tag') || false;
 
   if (!fs.existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
     core.error('It does not look like anything was checked out.');
@@ -59,16 +59,14 @@ async function runAction() {
 
   process.chdir(process.env.GITHUB_WORKSPACE);
 
-  if (process.env.GITHUB_REF.includes('\/tags\/') && tag_name) {
-    const localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
-  } 
-  else if (tag !== null) {
-    const localTag = `${orgId}/${moduleName}:${tag}`;
+
+  let localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
+  if (process.env.GITHUB_REF.includes('\/tags\/') && autoTag) {
+    localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
+  } else if (!tag) {
+    localTag = `${orgId}/${moduleName}:${tag}`;
   }
-  else {
-    const localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
-  }
-  
+
   const imageId = await docker.build(localTag, dockerfile);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');

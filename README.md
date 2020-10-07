@@ -40,8 +40,8 @@ _Optional_ Define your own tag for the docker image to be tagged with.
 ```
 
 
-### `tag_name`
-_Optional_ Use `tag_name` when you want to push tags/release by their git name (e.g. `refs/tags/MY_TAG_NAME`).  
+### `auto-tag`
+_Optional_ Use `auto-tag` when you want to push tags/release by their git name (e.g. `refs/tags/MY_TAG_NAME`).  
 > CAUTION: Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
 ```
 
@@ -49,7 +49,7 @@ _Optional_ Use `tag_name` when you want to push tags/release by their git name (
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
-        tag_name: true
+        auto-tag: true
 
 ```
 
