@@ -1001,7 +1001,7 @@ async function runAction() {
   } catch (error) {
     core.error('Unable to fetch repository credentials.');
     core.error('Did you add the token to your Github Secrets? ' +
-      'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+      'https://docs.humanitec.com/how-to-guides/ci/github-actions/');
     core.setFailed('Unable to access Humanitec.');
     return;
   }
