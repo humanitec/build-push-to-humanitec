@@ -15,8 +15,8 @@
     "eslint-config-google": "^0.14.0"
   },
   "dependencies": {
-    "@actions/core": "^1.2.3",
+    "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.3",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.1"
   }
 }
