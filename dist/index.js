@@ -968,6 +968,8 @@ async function runAction() {
   const dockerfile = core.getInput('dockerfile') || '.';
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
+  const tag = core.getInput('tag') || '';
+  const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
 
   if (!fs.existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
     core.error('It does not look like anything was checked out.');
@@ -999,7 +1001,7 @@ async function runAction() {
   } catch (error) {
     core.error('Unable to fetch repository credentials.');
     core.error('Did you add the token to your Github Secrets? ' +
-      'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+      'https://docs.humanitec.com/how-to-guides/ci/github-actions/');
     core.setFailed('Unable to access Humanitec.');
     return;
   }
@@ -1011,7 +1013,13 @@ async function runAction() {
 
   process.chdir(process.env.GITHUB_WORKSPACE);
 
-  const localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
+  let localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
+  if (process.env.GITHUB_REF.includes('\/tags\/') && autoTag) {
+    localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
+  } else if (tag) {
+    localTag = `${orgId}/${moduleName}:${tag}`;
+  }
+  
   const imageId = await docker.build(localTag, dockerfile);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');

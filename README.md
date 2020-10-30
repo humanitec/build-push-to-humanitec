@@ -27,6 +27,31 @@ numbers and the "-" symbol. It cannot start or end with "-".
 ### `dockerfile`
 _Optional_ Directory containing the Dockerfile. Defaults to the root of repository.
 
+### `tag`
+_Optional_ Define your own tag for the docker image to be tagged with.
+```
+
+    uses: humanitec/build-push-to-humaniteic@v1
+      with:
+        humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
+        organization: awesome-company
+        tag: latest
+
+```
+
+
+### `auto-tag`
+_Optional_ Use `auto-tag` when you want to push tags/release by their git name (e.g. `refs/tags/MY_TAG_NAME`).  
+> CAUTION: Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
+```
+
+    uses: humanitec/build-push-to-humaniteic@v1
+      with:
+        humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
+        organization: awesome-company
+        auto-tag: true
+
+```
 
 ## Outputs
 
