@@ -39,13 +39,13 @@ module.exports = function(token, orgId, apiHost) {
 
   /**
    * Notifies Humanitec that a build has completed
-   * @param {string} moduleName - The name of the module to be added to Huamnitec.
-   * @param {Payload} payload - Details about the module.
+   * @param {string} imageName - The name of the image to be added to Huamnitec.
+   * @param {Payload} payload - Details about the image.
    * @return {Promise} - A promise which resolves to true if successful, false otherwise.
    */
-  function addNewBuild(moduleName, payload) {
+  function addNewBuild(imageName, payload) {
     return fetch(
-      `https://${apiHost}/orgs/${orgId}/modules/${moduleName}/builds`, {
+      `https://${apiHost}/orgs/${orgId}/modules/${imageName}/builds`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

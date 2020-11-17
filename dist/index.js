@@ -964,7 +964,7 @@ async function runAction() {
   // Get GitHub Action inputs
   const token = core.getInput('humanitec-token', {required: true});
   const orgId = core.getInput('organization', {required: true});
-  const moduleName = core.getInput('module-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
+  const imageName = core.getInput('image-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
   const dockerfile = core.getInput('dockerfile') || '.';
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
@@ -980,10 +980,10 @@ async function runAction() {
   }
 
   // As the user can choose their module name, we need to ensure it is a valid slug (i.e. lowercase kebab case)
-  if (! moduleName.match(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/)) {
-    core.error('module-name must be all lowercase letters, numbers and the "-" symbol. ' +
+  if (! imageName.match(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/)) {
+    core.error('image-name must be all lowercase letters, numbers and the "-" symbol. ' +
       'It cannot start or end with "-".');
-    core.setFailed('module-name: "${moduleName}" is not valid.');
+    core.setFailed('image-name: "${imageName}" is not valid.');
     return;
   }
 
@@ -1013,11 +1013,11 @@ async function runAction() {
 
   process.chdir(process.env.GITHUB_WORKSPACE);
 
-  let localTag = `${orgId}/${moduleName}:${process.env.GITHUB_SHA}`;
+  let localTag = `${orgId}/${imageName}:${process.env.GITHUB_SHA}`;
   if (process.env.GITHUB_REF.includes('\/tags\/') && autoTag) {
-    localTag = `${orgId}/${moduleName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
+    localTag = `${orgId}/${imageName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
   } else if (tag) {
-    localTag = `${orgId}/${moduleName}:${tag}`;
+    localTag = `${orgId}/${imageName}:${tag}`;
   }
   
   const imageId = await docker.build(localTag, dockerfile);
@@ -1045,7 +1045,7 @@ async function runAction() {
   }
 
   try {
-    await humanitec.addNewBuild(moduleName, payload);
+    await humanitec.addNewBuild(imageName, payload);
   } catch (error) {
     core.error('Unable to notify Humanitec about build.');
     core.error('Did you add the token to your Github Secrets? ' +
@@ -3083,13 +3083,13 @@ module.exports = function(token, orgId, apiHost) {
 
   /**
    * Notifies Humanitec that a build has completed
-   * @param {string} moduleName - The name of the module to be added to Huamnitec.
-   * @param {Payload} payload - Details about the module.
+   * @param {string} imageName - The name of the image to be added to Huamnitec.
+   * @param {Payload} payload - Details about the image.
    * @return {Promise} - A promise which resolves to true if successful, false otherwise.
    */
-  function addNewBuild(moduleName, payload) {
+  function addNewBuild(imageName, payload) {
     return fetch(
-      `https://${apiHost}/orgs/${orgId}/modules/${moduleName}/builds`, {
+      `https://${apiHost}/orgs/${orgId}/modules/${imageName}/builds`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
