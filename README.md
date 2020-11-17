@@ -18,10 +18,10 @@ the following code should be used to pass it to the action:
 
 ```
 ### `organization`
-**Required** The name of the organization that the module will be built for.
+**Required** The name of the organization that the image will be built for.
 
-### `module-name`
-_Optional_ The name you want to refer to the module to in the Humanitec Platform. The id must be all lowercase letters,
+### `image-name`
+_Optional_ The name you want to refer to the image to in the Humanitec Platform. The id must be all lowercase letters,
 numbers and the "-" symbol. It cannot start or end with "-".
 
 ### `dockerfile`
