@@ -964,7 +964,7 @@ async function runAction() {
   // Get GitHub Action inputs
   const token = core.getInput('humanitec-token', {required: true});
   const orgId = core.getInput('organization', {required: true});
-  const moduleName = core.getInput('module-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
+  const moduleName = core.getInput('image-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
   const dockerfile = core.getInput('dockerfile') || '.';
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
@@ -981,9 +981,9 @@ async function runAction() {
 
   // As the user can choose their module name, we need to ensure it is a valid slug (i.e. lowercase kebab case)
   if (! moduleName.match(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/)) {
-    core.error('module-name must be all lowercase letters, numbers and the "-" symbol. ' +
+    core.error('image-name must be all lowercase letters, numbers and the "-" symbol. ' +
       'It cannot start or end with "-".');
-    core.setFailed('module-name: "${moduleName}" is not valid.');
+    core.setFailed('image-name: "${moduleName}" is not valid.');
     return;
   }
 
