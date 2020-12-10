@@ -23,14 +23,19 @@ function login(username, password, server) {
 /**
  * Builds the image described by the Dockerfile and tags it locally.
  * @param {string} tag - The local tag to use for the built image.
- * @param {string} dockefilePath - The path to the Dockerfile.
- *   (Can be a directory or the path to a file to use as Dockerfile.)
+ * @param {string} file - A path to an alternative dockerfile.
+ * @param {string} contextPath - A directory of a build's context.
  * @param {string} server - The host to connect to to log in.
  * @return {string} - The container ID assuming a successful build. falsy otherwise.
  */
-async function build(tag, dockefilePath) {
+async function build(tag, file, contextPath) {
   try {
-    await exec.exec('docker', ['build', '-t', tag, dockefilePath]);
+    let args = ['build', '-t', tag]
+    if(file != '') {
+      args.push('-f', file)
+    }
+    args.push(contextPath)
+    await exec.exec('docker', args);
 
     return cp.execSync(`docker images -q "${tag}"`).toString().trim();
   } catch (err) {
