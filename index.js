@@ -11,7 +11,7 @@ async function runAction() {
   const token = core.getInput('humanitec-token', {required: true});
   const orgId = core.getInput('organization', {required: true});
   const imageName = core.getInput('image-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
-  const context = core.getInput('dockerfile') || core.getInput('context') || '.';
+  const context = core.getInput('context') || core.getInput('dockerfile') || '.';
   const file = core.getInput('file') || '';
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
@@ -34,7 +34,7 @@ async function runAction() {
     return;
   }
 
-  if (!fs.existsSync(file)) {
+  if (file != '' && !fs.existsSync(file)) {
     core.error(`Cannot find file ${file}`);
     core.setFailed('Cannot find file.');
     return;
