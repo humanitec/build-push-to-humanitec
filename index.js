@@ -12,7 +12,7 @@ async function runAction() {
   const orgId = core.getInput('organization', {required: true});
   const imageName = core.getInput('image-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
   const context = core.getInput('dockerfile') || core.getInput('context') || '.';
-  const file = core.getImput('file') || '',
+  const file = core.getInput('file') || '';
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || '';
