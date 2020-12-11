@@ -24,7 +24,6 @@ inputs:
   context:
     description: 'Build context path. Defaults to the root of repository.'
     required: false
-    default: '.'
   file:
     description: 'A path to an alternative Dockerfile. Defaults to Dockerfile in the context path'
     required: false
