@@ -76,7 +76,7 @@ async function runAction() {
 
   const imageId = await docker.build(localTag, file, context);
   if (!imageId) {
-    core.setFailed('Unable build image from Dockerfile. Context ${context}, file ${file}.');
+    core.setFailed('Unable build image from Dockerfile.');
     return;
   }
 

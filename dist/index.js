@@ -965,7 +965,8 @@ async function runAction() {
   const token = core.getInput('humanitec-token', {required: true});
   const orgId = core.getInput('organization', {required: true});
   const imageName = core.getInput('image-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
-  const dockerfile = core.getInput('dockerfile') || '.';
+  const context = core.getInput('context') || core.getInput('dockerfile') || '.';
+  const file = core.getInput('file') || '';
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || '';
@@ -987,9 +988,15 @@ async function runAction() {
     return;
   }
 
-  if (!fs.existsSync(dockerfile)) {
-    core.error(`Cannot find Dockerfile at ${dockerfile}`);
-    core.setFailed('Cannot find Dockerfile.');
+  if (file != '' && !fs.existsSync(file)) {
+    core.error(`Cannot find file ${file}`);
+    core.setFailed('Cannot find file.');
+    return;
+  }
+
+  if (!fs.existsSync(context)) {
+    core.error(`Context path does not exist: ${context}`);
+    core.setFailed('Context path does not exist.');
     return;
   }
 
@@ -1020,7 +1027,7 @@ async function runAction() {
     localTag = `${orgId}/${imageName}:${tag}`;
   }
   
-  const imageId = await docker.build(localTag, dockerfile);
+  const imageId = await docker.build(localTag, file, context);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');
     return;
@@ -3431,21 +3438,26 @@ function login(username, password, server) {
 /**
  * Builds the image described by the Dockerfile and tags it locally.
  * @param {string} tag - The local tag to use for the built image.
- * @param {string} dockefilePath - The path to the Dockerfile.
- *   (Can be a directory or the path to a file to use as Dockerfile.)
+ * @param {string} file - A path to an alternative dockerfile.
+ * @param {string} contextPath - A directory of a build's context.
  * @param {string} server - The host to connect to to log in.
  * @return {string} - The container ID assuming a successful build. falsy otherwise.
  */
-async function build(tag, dockefilePath) {
-  try {
-    await exec.exec('docker', ['build', '-t', tag, dockefilePath]);
-
-    return cp.execSync(`docker images -q "${tag}"`).toString().trim();
-  } catch (err) {
-    return false;
+async function build(tag, file, contextPath) {
+    try {
+      let args = ['build', '-t', tag]
+      if(file != '') {
+        args.push('-f', file)
+      }
+      args.push(contextPath)
+      await exec.exec('docker', args);
+  
+      return cp.execSync(`docker images -q "${tag}"`).toString().trim();
+    } catch (err) {
+      return false;
+    }
   }
-}
-
+  
 
 /**
  * Pushes the specified local image to a the remote server. Assumes docker.login has already been called.
