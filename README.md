@@ -24,8 +24,14 @@ the following code should be used to pass it to the action:
 _Optional_ The name you want to refer to the image to in the Humanitec Platform. The id must be all lowercase letters,
 numbers and the "-" symbol. It cannot start or end with "-".
 
+### `file`
+_Optional_ A path to an alternative Dockerfile.
+
+### `context`
+_Optional_ Context path. Defaults to ".".
+
 ### `dockerfile`
-_Optional_ Directory containing the Dockerfile. Defaults to the root of repository.
+_Optional_ The same as `context`.
 
 ### `tag`
 _Optional_ Define your own tag for the docker image to be tagged with.

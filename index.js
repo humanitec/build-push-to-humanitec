@@ -11,7 +11,8 @@ async function runAction() {
   const token = core.getInput('humanitec-token', {required: true});
   const orgId = core.getInput('organization', {required: true});
   const imageName = core.getInput('image-name') || process.env.GITHUB_REPOSITORY.replace(/.*\//, '');
-  const dockerfile = core.getInput('dockerfile') || '.';
+  const context = core.getInput('context') || core.getInput('dockerfile') || '.';
+  const file = core.getInput('file') || '';
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || '';
@@ -33,9 +34,15 @@ async function runAction() {
     return;
   }
 
-  if (!fs.existsSync(dockerfile)) {
-    core.error(`Cannot find Dockerfile at ${dockerfile}`);
-    core.setFailed('Cannot find Dockerfile.');
+  if (file != '' && !fs.existsSync(file)) {
+    core.error(`Cannot find file ${file}`);
+    core.setFailed('Cannot find file.');
+    return;
+  }
+
+  if (!fs.existsSync(context)) {
+    core.error(`Context path does not exist: ${context}`);
+    core.setFailed('Context path does not exist.');
     return;
   }
 
@@ -67,7 +74,7 @@ async function runAction() {
     localTag = `${orgId}/${imageName}:${tag}`;
   }
 
-  const imageId = await docker.build(localTag, dockerfile);
+  const imageId = await docker.build(localTag, file, context);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');
     return;

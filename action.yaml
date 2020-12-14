@@ -18,9 +18,15 @@ inputs:
     description: 'Use auto-tag when you want to push tags/release by their git name'
     required: false
   dockerfile:
-    description: 'Directory containing the Dockerfile. Defaults to the root of repository.'
+    description: 'Directory containing the Dockerfile. Defaults to the root of repository. The same as "context"'
     required: false
     default: '.'
+  context:
+    description: 'Build context path. Defaults to the root of repository.'
+    required: false
+  file:
+    description: 'A path to an alternative Dockerfile. Defaults to Dockerfile in the context path'
+    required: false
   humanitec-registry:
     description: 'Allows the default humanitec registry to be overidden for testing.'
     required: false
