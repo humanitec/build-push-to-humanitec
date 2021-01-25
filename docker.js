@@ -1,5 +1,7 @@
 const cp = require('child_process');
 const exec = require('@actions/exec');
+const { countReset } = require('console');
+const core = require('@actions/core');
 
 /**
  * Authenticates with a remote docker registry.
@@ -39,6 +41,7 @@ async function build(tag, file, contextPath) {
       args.push(additionalDockerArguments)
     }
     args.push(contextPath)
+    core.info(args)
     await exec.exec('docker', args);
 
     return cp.execSync(`docker images -q "${tag}"`).toString().trim();
