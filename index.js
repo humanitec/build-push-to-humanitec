@@ -74,7 +74,7 @@ async function runAction() {
     localTag = `${orgId}/${imageName}:${tag}`;
   }
 
-  const imageId = await docker.build(localTag, file, context, additionalDockerArguments);
+  const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');
     return;
