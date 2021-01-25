@@ -26,8 +26,8 @@ function login(username, password, server) {
  * @param {string} tag - The local tag to use for the built image.
  * @param {string} file - A path to an alternative dockerfile.
  * @param {string} contextPath - A directory of a build's context.
- * @param {string} server - The host to connect to to log in.
  * @param {string} additionalDockerArguments - Additional docker arguments
+ * @param {string} server - The host to connect to to log in.
  * @return {string} - The container ID assuming a successful build. falsy otherwise.
  */
 async function build(tag, file, contextPath, additionalDockerArguments) {
