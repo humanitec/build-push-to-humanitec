@@ -1,7 +1,6 @@
 const cp = require('child_process');
 const exec = require('@actions/exec');
 const { countReset } = require('console');
-const core = require('@actions/core');
 
 /**
  * Authenticates with a remote docker registry.
@@ -31,7 +30,7 @@ function login(username, password, server) {
  * @param {string} additionalDockerArguments - Additional docker arguments
  * @return {string} - The container ID assuming a successful build. falsy otherwise.
  */
-async function build(tag, file, contextPath) {
+async function build(tag, file, contextPath, additionalDockerArguments) {
   try {
     let args = ['build', '-t', tag]
     if(file != '') {
@@ -41,7 +40,6 @@ async function build(tag, file, contextPath) {
       args.push(additionalDockerArguments)
     }
     args.push(contextPath)
-    core.info(args)
     await exec.exec('docker', args);
 
     return cp.execSync(`docker images -q "${tag}"`).toString().trim();
