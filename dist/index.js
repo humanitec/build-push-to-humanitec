@@ -3557,7 +3557,13 @@ async function build(tag, file, additionalDockerArguments, contextPath) {
     if (file != '') {
       args.push('-f', file);
     }
-    args.push(contextPath, string.split(additionalDockerArguments, ' '));
+    if (additionalDockerArguments != '') {
+      dockerArgs = additionalDockerArguments.split(' ');
+      for (i=0; i < dockerArgs.length(); i++) {
+        args.push(dockerArgs[i]);
+      }
+    }
+    args.push(contextPath);
     await exec.exec('docker', args);
 
     return cp.execSync(`docker images -q "${tag}"`).toString().trim();
