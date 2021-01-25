@@ -67,7 +67,7 @@ _Optional_ Use `auto-tag` when you want to push tags/release by their git name (
 ### `additional-docker-arguments`
 
 _Optional_ Use `additional-docker-arguments` if you need to provide additional arguments (e.g.,build arguments) to the docker build process.
-> NOTE: You can provide multiple argument by placing them in one long list of commands, e.g., `--build-args env1=value1 --build-args env2=value2`.
+> NOTE: You can provide multiple argument by placing them in one long list of commands, e.g., `--build-arg env1=value1 --build-arg env2=value2`.
 ```
     uses: humanitec/build-push-to-humaniteic@v1
       with:
