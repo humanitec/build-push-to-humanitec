@@ -59,7 +59,7 @@ _Optional_ Use `auto-tag` when you want to push tags/release by their git name (
 
 ```
 
-### `additional-docker-arguments``
+### `additional-docker-arguments`
 _Optional_ Use `additional-docker-arguments` if you need to provide additional arguments (e.g.,build arguments) to the docker build process.
 ```
 

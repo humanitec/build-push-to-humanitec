@@ -30,7 +30,6 @@ inputs:
   additional-docker-arguments:
     description: 'Additional arguments for docker (e.g.,build arguments). Defaults to empty.'
     required: false
-    default: ''
   humanitec-registry:
     description: 'Allows the default humanitec registry to be overidden for testing.'
     required: false

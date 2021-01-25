@@ -36,10 +36,7 @@ async function build(tag, file, contextPath, additionalDockerArguments) {
     if(file != '') {
       args.push('-f', file)
     }
-    if(additionalDockerArguments != '') {
-      args.push(additionalDockerArguments)
-    }
-    args.push(contextPath)
+    args.push(additionalDockerArguments, contextPath)
     await exec.exec('docker', args);
 
     return cp.execSync(`docker images -q "${tag}"`).toString().trim();
