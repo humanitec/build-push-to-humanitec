@@ -37,7 +37,7 @@ async function build(tag, file, additionalDockerArguments, contextPath) {
     }
     if (additionalDockerArguments != '') {
       dockerArgs = additionalDockerArguments.split(' ');
-      for (i=0; i < dockerArgs.length(); i++) {
+      for (var i=0; i < dockerArgs.length; i++) {
         args.push(dockerArgs[i]);
       }
     }
