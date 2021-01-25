@@ -77,7 +77,7 @@ async function runAction() {
   const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
   console.log(additionalDockerArguments);
   dockerArgs = additionalDockerArguments.split(' ');
-  for (i=0; i < dockerArgs.length(); i++) {
+  for (var i=0; i < dockerArgs.length; i++) {
     console.log(dockerArgs[i]);
   }
   if (!imageId) {
