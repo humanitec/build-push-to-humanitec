@@ -17,7 +17,7 @@ async function runAction() {
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || '';
   const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
-  const additionalDockerArguments = core.getInput('additional_docker_arguments') || '';
+  const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
 
   if (!fs.existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
     core.error('It does not look like anything was checked out.');
