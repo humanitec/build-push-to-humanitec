@@ -26,6 +26,7 @@ function login(username, password, server) {
  * @param {string} file - A path to an alternative dockerfile.
  * @param {string} contextPath - A directory of a build's context.
  * @param {string} server - The host to connect to to log in.
+ * @param {string} additionalDockerArguments - Additional docker arguments
  * @return {string} - The container ID assuming a successful build. falsy otherwise.
  */
 async function build(tag, file, contextPath) {
@@ -33,6 +34,9 @@ async function build(tag, file, contextPath) {
     let args = ['build', '-t', tag]
     if(file != '') {
       args.push('-f', file)
+    }
+    if(additionalDockerArguments != '') {
+      args.push(additionalDockerArguments)
     }
     args.push(contextPath)
     await exec.exec('docker', args);
