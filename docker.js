@@ -1,5 +1,7 @@
 const cp = require('child_process');
 const exec = require('@actions/exec');
+const {countReset} = require('console');
+const chunk = require('./chunk');
 
 /**
  * Authenticates with a remote docker registry.
@@ -24,17 +26,23 @@ function login(username, password, server) {
  * Builds the image described by the Dockerfile and tags it locally.
  * @param {string} tag - The local tag to use for the built image.
  * @param {string} file - A path to an alternative dockerfile.
+ * @param {string} additionalDockerArguments - Additional docker arguments
  * @param {string} contextPath - A directory of a build's context.
- * @param {string} server - The host to connect to to log in.
  * @return {string} - The container ID assuming a successful build. falsy otherwise.
  */
-async function build(tag, file, contextPath) {
+async function build(tag, file, additionalDockerArguments, contextPath) {
   try {
-    let args = ['build', '-t', tag]
-    if(file != '') {
-      args.push('-f', file)
+    let args = ['build', '-t', tag];
+    if (file != '') {
+      args.push('-f', file);
     }
-    args.push(contextPath)
+    if (additionalDockerArguments != '') {
+      const argArray = chunk.args(additionalDockerArguments);
+      for (var i=0; i < argArray.length; i++) {
+        args.push(argArray[i]);
+      }
+    }
+    args.push(contextPath);
     await exec.exec('docker', args);
 
     return cp.execSync(`docker images -q "${tag}"`).toString().trim();
