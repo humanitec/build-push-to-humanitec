@@ -11,7 +11,7 @@ to the action using a variable expansion. For example, if the token is store as 
 the following code should be used to pass it to the action:
 ```
 
-    uses: humanitec/build-push-to-humaniteic@v1
+    uses: humanitec/build-push-to-humanitec@1.1.1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -37,7 +37,7 @@ _Optional_ The same as `context`.
 _Optional_ Define your own tag for the docker image to be tagged with.
 ```
 
-    uses: humanitec/build-push-to-humaniteic@v1
+    uses: humanitec/build-push-to-humanitec@1.1.1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -51,7 +51,7 @@ _Optional_ Use `auto-tag` when you want to push tags/release by their git name (
 > CAUTION: Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
 ```
 
-    uses: humanitec/build-push-to-humaniteic@v1
+    uses: humanitec/build-push-to-humanitec@v1.1.1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -67,7 +67,7 @@ _None._
 
 ```
 
-uses: humanitec/build-push-to-humanitec@v1
+uses: humanitec/build-push-to-humanitec@v1.1.1
   with:
     humanitec-token: ${{ secret.HUMANITEC_TOKEN }}
     organization: awesome-company
