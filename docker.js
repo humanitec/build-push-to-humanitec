@@ -1,6 +1,7 @@
 const cp = require('child_process');
 const exec = require('@actions/exec');
 const {countReset} = require('console');
+const chunk = require('./chunk');
 
 /**
  * Authenticates with a remote docker registry.
@@ -36,9 +37,9 @@ async function build(tag, file, additionalDockerArguments, contextPath) {
       args.push('-f', file);
     }
     if (additionalDockerArguments != '') {
-      dockerArgs = additionalDockerArguments.split(' ');
-      for (var i=0; i < dockerArgs.length; i++) {
-        args.push(dockerArgs[i]);
+      const argArray = chunk.args(additionalDockerArguments);
+      for (var i=0; i < argArray.length; i++) {
+        args.push(argArray[i]);
       }
     }
     args.push(contextPath);
