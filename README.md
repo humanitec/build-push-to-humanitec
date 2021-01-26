@@ -12,7 +12,7 @@ to the action using a variable expansion. For example, if the token is store as 
 the following code should be used to pass it to the action:
 
 ```
-    uses: humanitec/build-push-to-humanitec@1.1.1
+    uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -44,7 +44,7 @@ _Optional_ The same as `context`.
 _Optional_ Define your own tag for the docker image to be tagged with.
 
 ```
-    uses: humanitec/build-push-to-humanitec@1.1.1
+    uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -57,7 +57,7 @@ _Optional_ Use `auto-tag` when you want to push tags/release by their git name (
 > CAUTION: Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
 
 ```
-    uses: humanitec/build-push-to-humanitec@1.1.1
+    uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -70,7 +70,7 @@ _Optional_ Use `additional-docker-arguments` if you need to provide additional a
 > NOTE: You can provide multiple argument by placing them in one long list of commands, e.g., `--build-arg env1=value1 --build-arg env2=value2`.
 
 ```
-    uses: humanitec/build-push-to-humanitec@1.1.1
+    uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
         organization: awesome-company
@@ -84,7 +84,7 @@ _None._
 ## Example usage
 
 ```
-uses: humanitec/build-push-to-humanitec@1.1.1
+uses: humanitec/build-push-to-humanitec@v1
   with:
     humanitec-token: ${{ secret.HUMANITEC_TOKEN }}
     organization: awesome-company
