@@ -12,10 +12,10 @@ inputs:
     required: false
     default: ''
   tag:
-    description: 'Use tag when you want to bring your own tag'
+    description: 'Use tag when you want to bring your own tag.'
     required: false
   auto-tag:
-    description: 'Use auto-tag when you want to push tags/release by their git name'
+    description: 'Use auto-tag when you want to push tags/release by their git name.'
     required: false
   dockerfile:
     description: 'Directory containing the Dockerfile. Defaults to the root of repository. The same as "context"'
@@ -26,6 +26,9 @@ inputs:
     required: false
   file:
     description: 'A path to an alternative Dockerfile. Defaults to Dockerfile in the context path'
+    required: false
+  additional-docker-arguments:
+    description: 'Additional arguments for docker (e.g.,build arguments). Defaults to empty.'
     required: false
   humanitec-registry:
     description: 'Allows the default humanitec registry to be overidden for testing.'
