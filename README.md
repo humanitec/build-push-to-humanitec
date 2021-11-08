@@ -86,6 +86,6 @@ _None._
 ```
 uses: humanitec/build-push-to-humanitec@v1
   with:
-    humanitec-token: ${{ secret.HUMANITEC_TOKEN }}
+    humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
     organization: awesome-company
 ```
