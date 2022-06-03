@@ -1020,9 +1020,28 @@ module.exports = {
 /***/ }),
 
 /***/ 82:
-/***/ (function(module) {
+/***/ (function(__unusedmodule, exports) {
 
-module.exports = require("console");
+"use strict";
+
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+//# sourceMappingURL=utils.js.map
 
 /***/ }),
 
@@ -1051,7 +1070,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__webpack_require__(747));
 const os = __importStar(__webpack_require__(87));
-const utils_1 = __webpack_require__(394);
+const utils_1 = __webpack_require__(82);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -1183,7 +1202,11 @@ async function runAction() {
   }
 }
 
-runAction();
+runAction().catch((e) => {
+  core.error('Action failed');
+  core.error(`${e.name} ${e.message}`);
+  core.setFailed(`${e.name} ${e.message}`);
+});
 
 
 /***/ }),
@@ -1209,32 +1232,6 @@ module.exports = require("assert");
 
 /***/ }),
 
-/***/ 394:
-/***/ (function(__unusedmodule, exports) {
-
-"use strict";
-
-// We use any as a valid input type
-/* eslint-disable @typescript-eslint/no-explicit-any */
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Sanitizes an input into a string so it can be passed into issueCommand safely
- * @param input input to sanitize into a string
- */
-function toCommandValue(input) {
-    if (input === null || input === undefined) {
-        return '';
-    }
-    else if (typeof input === 'string' || input instanceof String) {
-        return input;
-    }
-    return JSON.stringify(input);
-}
-exports.toCommandValue = toCommandValue;
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
 /***/ 413:
 /***/ (function(module) {
 
@@ -1256,7 +1253,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const os = __importStar(__webpack_require__(87));
-const utils_1 = __webpack_require__(394);
+const utils_1 = __webpack_require__(82);
 /**
  * Commands
  *
@@ -3009,7 +3006,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const command_1 = __webpack_require__(431);
 const file_command_1 = __webpack_require__(102);
-const utils_1 = __webpack_require__(394);
+const utils_1 = __webpack_require__(82);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -3599,7 +3596,6 @@ exports.exec = exec;
 
 const cp = __webpack_require__(129);
 const exec = __webpack_require__(986);
-const {countReset} = __webpack_require__(82);
 const chunk = __webpack_require__(48);
 
 /**
@@ -3631,13 +3627,13 @@ function login(username, password, server) {
  */
 async function build(tag, file, additionalDockerArguments, contextPath) {
   try {
-    let args = ['build', '-t', tag];
+    const args = ['build', '-t', tag];
     if (file != '') {
       args.push('-f', file);
     }
     if (additionalDockerArguments != '') {
       const argArray = chunk.args(additionalDockerArguments);
-      for (var i=0; i < argArray.length; i++) {
+      for (let i=0; i < argArray.length; i++) {
         args.push(argArray[i]);
       }
     }
