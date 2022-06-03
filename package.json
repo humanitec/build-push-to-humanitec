@@ -10,7 +10,7 @@
   "author": "chris.stephenson@humanitec.com",
   "license": "ISC",
   "devDependencies": {
-    "@zeit/ncc": "^0.22.0",
+    "@vercel/ncc": "^0.34.0",
     "eslint": "^6.8.0",
     "eslint-config-eslint": "^6.0.0",
     "eslint-config-google": "^0.14.0"
