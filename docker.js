@@ -1,6 +1,5 @@
 const cp = require('child_process');
 const exec = require('@actions/exec');
-const {countReset} = require('console');
 const chunk = require('./chunk');
 
 /**
@@ -32,13 +31,13 @@ function login(username, password, server) {
  */
 async function build(tag, file, additionalDockerArguments, contextPath) {
   try {
-    let args = ['build', '-t', tag];
+    const args = ['build', '-t', tag];
     if (file != '') {
       args.push('-f', file);
     }
     if (additionalDockerArguments != '') {
       const argArray = chunk.args(additionalDockerArguments);
-      for (var i=0; i < argArray.length; i++) {
+      for (let i=0; i < argArray.length; i++) {
         args.push(argArray[i]);
       }
     }

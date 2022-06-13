@@ -109,4 +109,8 @@ async function runAction() {
   }
 }
 
-runAction();
+runAction().catch((e) => {
+  core.error('Action failed');
+  core.error(`${e.name} ${e.message}`);
+  core.setFailed(`${e.name} ${e.message}`);
+});
