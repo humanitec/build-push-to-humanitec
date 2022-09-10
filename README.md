@@ -1,7 +1,7 @@
 # Build Push to Humanitec Action
 
 This action builds a container image from a Dockerfile, then pushes the image to the Humanitec registry and finally
-notifies the Humanitec platform that a new build is available.
+notifies the Humanitec platform that a new version is available.
 
 ## Inputs
 
@@ -11,7 +11,7 @@ notifies the Humanitec platform that a new build is available.
 to the action using a variable expansion. For example, if the token is store as a secret with name `HUMANITEC_TOKEN`,
 the following code should be used to pass it to the action:
 
-```
+```yaml
     uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
@@ -24,8 +24,7 @@ the following code should be used to pass it to the action:
 
 ### `image-name`
 
-_Optional_ The name you want to refer to the image to in the Humanitec Platform. The id must be all lowercase letters,
-numbers and the "-" symbol. It cannot start or end with "-".
+_Optional_ The name you want to use in the Docker registry. The name can only contain lowercase letters, numbers, hyphens ("-"), and underscores ("_").
 
 ### `file`
 
@@ -43,7 +42,7 @@ _Optional_ The same as `context`.
 
 _Optional_ Define your own tag for the docker image to be tagged with.
 
-```
+```yaml
     uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
@@ -56,7 +55,7 @@ _Optional_ Define your own tag for the docker image to be tagged with.
 _Optional_ Use `auto-tag` when you want to push tags/release by their git name (e.g. `refs/tags/MY_TAG_NAME`).  
 > CAUTION: Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
 
-```
+```yaml
     uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
@@ -69,7 +68,7 @@ _Optional_ Use `auto-tag` when you want to push tags/release by their git name (
 _Optional_ Use `additional-docker-arguments` if you need to provide additional arguments (e.g.,build arguments) to the docker build process.
 > NOTE: You can provide multiple argument by placing them in one long list of commands, e.g., `--build-arg env1=value1 --build-arg env2=value2`.
 
-```
+```yaml
     uses: humanitec/build-push-to-humanitec@v1
       with:
         humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
@@ -83,7 +82,7 @@ _None._
 
 ## Example usage
 
-```
+```yaml
 uses: humanitec/build-push-to-humanitec@v1
   with:
     humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}

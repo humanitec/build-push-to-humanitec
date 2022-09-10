@@ -110,7 +110,7 @@ function login(username, password, server) {
  * @param {string} file - A path to an alternative dockerfile.
  * @param {string} additionalDockerArguments - Additional docker arguments
  * @param {string} contextPath - A directory of a build's context.
- * @return {string} - The container ID assuming a successful build. falsy otherwise.
+ * @return {string} - The container ID assuming a successful build, falsy otherwise.
  */
 async function build(tag, file, additionalDockerArguments, contextPath) {
   try {
@@ -133,16 +133,30 @@ async function build(tag, file, additionalDockerArguments, contextPath) {
   }
 }
 
+/**
+ * Retrieve the digest of an image. Assumes it has already been pushed to the registry.
+ * @param {string} imageId - The id of the image.
+ * @return {string} - The digest of the image, falsy otherwise.
+ */
+async function getDigest(imageId) {
+  try {
+    return cp.execSync(`docker image inspect "${imageId}" -f '{{index .RepoDigests 0}}' | cut -d'@' -f2`)
+      .toString().trim();
+  } catch (err) {
+    return false;
+  }
+}
+
 
 /**
  * Pushes the specified local image to a the remote server. Assumes docker.login has already been called.
- * @param {string} imagId - The id of the tag being pushed. (Usually returned from docker.build)
+ * @param {string} imageId - The id of the tag being pushed. (Usually returned from docker.build)
  * @param {string} remoteTag - The tag that the image will use remotely. (Should indclude registry host, name and tags.)
  * @return {boolean} - true if successful, otherwise false.
  */
-function push(imagId, remoteTag) {
+function push(imageId, remoteTag) {
   try {
-    cp.execSync(`docker tag "${imagId}" "${remoteTag}"`);
+    cp.execSync(`docker tag "${imageId}" "${remoteTag}"`);
     cp.execSync(`docker push "${remoteTag}"`);
   } catch (err) {
     return false;
@@ -153,6 +167,7 @@ function push(imagId, remoteTag) {
 module.exports = {
   login,
   build,
+  getDigest,
   push,
 };
 
@@ -171,10 +186,11 @@ const fetch = __nccwpck_require__(467);
 
 /**
  * @typedef {Object} Payload
+ * @property {string} name - The full image name excluding the tag. It should include the registry and the repository.
+ * @property {string} version - The tag for the docker image to be tagged with.
+ * @property {string} ref - The ref of the image.
  * @property {string} commit - The GIT SHA of the commit being notified about.
- * @property {string} branch - The branch this commit is on.
- * @property {Array|string} tags - An array of tags refering to this commit.
- * @property {string} image - The fully qualidied image name that should be used for this build.
+ * @property {string} digest - The digest of the version.
  */
 
 module.exports = function(token, orgId, apiHost) {
@@ -202,18 +218,18 @@ module.exports = function(token, orgId, apiHost) {
   }
 
   /**
-   * Notifies Humanitec that a build has completed
-   * @param {string} imageName - The name of the image to be added to Huamnitec.
-   * @param {Payload} payload - Details about the image.
+   * Notifies Humanitec that a version has been added
+   * @param {Payload} payload - Details about the artefact version.
    * @return {Promise} - A promise which resolves to true if successful, false otherwise.
    */
-  function addNewBuild(imageName, payload) {
+  function addNewVersion(payload) {
     return fetch(
-      `https://${apiHost}/orgs/${orgId}/modules/${imageName}/builds`, {
+      `https://${apiHost}/orgs/${orgId}/artefact-versions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'gh-action-build-push-to-humanitec/latest',
         },
         body: JSON.stringify(payload),
       }).then((res) => res.ok);
@@ -221,7 +237,7 @@ module.exports = function(token, orgId, apiHost) {
 
   return {
     getRegistryCredentials,
-    addNewBuild,
+    addNewVersion,
   };
 };
 
@@ -5804,22 +5820,16 @@ async function runAction() {
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || '';
+  const commit = process.env.GITHUB_SHA;
   const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
   const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
 
+  const ref = process.env.GITHUB_REF;
   if (!fs.existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
     core.error('It does not look like anything was checked out.');
     core.error('Did you run a checkout step before this step? ' +
       'http:/docs.humanitec.com/connecting-your-ci#github-actions');
     core.setFailed('No .git directory found in workspace.');
-    return;
-  }
-
-  // As the user can choose their image name, we need to ensure it is a valid slug (i.e. lowercase kebab case)
-  if (! imageName.match(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/)) {
-    core.error('image-name must be all lowercase letters, numbers and the "-" symbol. ' +
-      'It cannot start or end with "-".');
-    core.setFailed('image-name: "${imageName}" is not valid.');
     return;
   }
 
@@ -5855,13 +5865,15 @@ async function runAction() {
 
   process.chdir(process.env.GITHUB_WORKSPACE);
 
-  let localTag = `${orgId}/${imageName}:${process.env.GITHUB_SHA}`;
-  if (process.env.GITHUB_REF.includes('\/tags\/') && autoTag) {
-    localTag = `${orgId}/${imageName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
+  let version = '';
+  if (autoTag && ref.includes('\/tags\/')) {
+    version = ref.replace(/.*\/tags\//, '');
   } else if (tag) {
-    localTag = `${orgId}/${imageName}:${tag}`;
+    version = tag;
+  } else {
+    version = commit;
   }
-
+  const localTag = `${orgId}/${imageName}:${version}`;
   const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');
@@ -5874,20 +5886,23 @@ async function runAction() {
     return;
   }
 
-  const payload = {
-    commit: process.env.GITHUB_SHA,
-    image: remoteTag,
-  };
-  if (process.env.GITHUB_REF.includes('\/heads\/')) {
-    payload.branch = process.env.GITHUB_REF.replace(/.*\/heads\//, '');
-    payload.tags = [];
-  } else {
-    payload.branch = '';
-    payload.tags = [process.env.GITHUB_REF.replace(/.*\/tags\//, '')];
+  let digest = await docker.getDigest(imageId);
+  if (!digest) {
+    core.error('Unable to retrieve the digest of the image');
+    digest = '';
   }
 
+  const payload = {
+    name: `${registryHost}/${orgId}/${imageName}`,
+    type: 'container',
+    version,
+    ref,
+    commit,
+    digest,
+  };
+
   try {
-    await humanitec.addNewBuild(imageName, payload);
+    await humanitec.addNewVersion(payload);
   } catch (error) {
     core.error('Unable to notify Humanitec about build.');
     core.error('Did you add the token to your Github Secrets? ' +
