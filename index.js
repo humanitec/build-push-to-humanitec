@@ -16,22 +16,16 @@ async function runAction() {
   const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || '';
+  const commit = process.env.GITHUB_SHA;
   const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
   const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
 
+  const ref = process.env.GITHUB_REF;
   if (!fs.existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
     core.error('It does not look like anything was checked out.');
     core.error('Did you run a checkout step before this step? ' +
       'http:/docs.humanitec.com/connecting-your-ci#github-actions');
     core.setFailed('No .git directory found in workspace.');
-    return;
-  }
-
-  // As the user can choose their image name, we need to ensure it is a valid slug (i.e. lowercase kebab case)
-  if (! imageName.match(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/)) {
-    core.error('image-name must be all lowercase letters, numbers and the "-" symbol. ' +
-      'It cannot start or end with "-".');
-    core.setFailed('image-name: "${imageName}" is not valid.');
     return;
   }
 
@@ -67,13 +61,15 @@ async function runAction() {
 
   process.chdir(process.env.GITHUB_WORKSPACE);
 
-  let localTag = `${orgId}/${imageName}:${process.env.GITHUB_SHA}`;
-  if (process.env.GITHUB_REF.includes('\/tags\/') && autoTag) {
-    localTag = `${orgId}/${imageName}:${process.env.GITHUB_REF.replace(/.*\/tags\//, '')}`;
+  let version = '';
+  if (autoTag && ref.includes('\/tags\/')) {
+    version = ref.replace(/.*\/tags\//, '');
   } else if (tag) {
-    localTag = `${orgId}/${imageName}:${tag}`;
+    version = tag;
+  } else {
+    version = commit;
   }
-
+  const localTag = `${orgId}/${imageName}:${version}`;
   const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');
@@ -86,20 +82,23 @@ async function runAction() {
     return;
   }
 
-  const payload = {
-    commit: process.env.GITHUB_SHA,
-    image: remoteTag,
-  };
-  if (process.env.GITHUB_REF.includes('\/heads\/')) {
-    payload.branch = process.env.GITHUB_REF.replace(/.*\/heads\//, '');
-    payload.tags = [];
-  } else {
-    payload.branch = '';
-    payload.tags = [process.env.GITHUB_REF.replace(/.*\/tags\//, '')];
+  let digest = await docker.getDigest(imageId);
+  if (!digest) {
+    core.error('Unable to retrieve the digest of the image');
+    digest = '';
   }
 
+  const payload = {
+    name: `${registryHost}/${orgId}/${imageName}`,
+    type: 'container',
+    version,
+    ref,
+    commit,
+    digest,
+  };
+
   try {
-    await humanitec.addNewBuild(imageName, payload);
+    await humanitec.addNewVersion(payload);
   } catch (error) {
     core.error('Unable to notify Humanitec about build.');
     core.error('Did you add the token to your Github Secrets? ' +
@@ -109,4 +108,8 @@ async function runAction() {
   }
 }
 
-runAction();
+runAction().catch((e) => {
+  core.error('Action failed');
+  core.error(`${e.name} ${e.message}`);
+  core.setFailed(`${e.name} ${e.message}`);
+});
