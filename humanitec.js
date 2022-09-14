@@ -7,10 +7,11 @@ const fetch = require('node-fetch');
 
 /**
  * @typedef {Object} Payload
+ * @property {string} name - The full image name excluding the tag. It should include the registry and the repository.
+ * @property {string} version - The tag for the docker image to be tagged with.
+ * @property {string} ref - The ref of the image.
  * @property {string} commit - The GIT SHA of the commit being notified about.
- * @property {string} branch - The branch this commit is on.
- * @property {Array|string} tags - An array of tags refering to this commit.
- * @property {string} image - The fully qualidied image name that should be used for this build.
+ * @property {string} digest - The digest of the version.
  */
 
 module.exports = function(token, orgId, apiHost) {
@@ -38,18 +39,18 @@ module.exports = function(token, orgId, apiHost) {
   }
 
   /**
-   * Notifies Humanitec that a build has completed
-   * @param {string} imageName - The name of the image to be added to Huamnitec.
-   * @param {Payload} payload - Details about the image.
+   * Notifies Humanitec that a version has been added
+   * @param {Payload} payload - Details about the artefact version.
    * @return {Promise} - A promise which resolves to true if successful, false otherwise.
    */
-  function addNewBuild(imageName, payload) {
+  function addNewVersion(payload) {
     return fetch(
-      `https://${apiHost}/orgs/${orgId}/modules/${imageName}/builds`, {
+      `https://${apiHost}/orgs/${orgId}/artefact-versions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'gh-action-build-push-to-humanitec/latest',
         },
         body: JSON.stringify(payload),
       }).then((res) => res.ok);
@@ -57,6 +58,6 @@ module.exports = function(token, orgId, apiHost) {
 
   return {
     getRegistryCredentials,
-    addNewBuild,
+    addNewVersion,
   };
 };
