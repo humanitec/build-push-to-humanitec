@@ -11,7 +11,6 @@ const fetch = require('node-fetch');
  * @property {string} version - The tag for the docker image to be tagged with.
  * @property {string} ref - The ref of the image.
  * @property {string} commit - The GIT SHA of the commit being notified about.
- * @property {string} digest - The digest of the version.
  */
 
 module.exports = function(token, orgId, apiHost) {

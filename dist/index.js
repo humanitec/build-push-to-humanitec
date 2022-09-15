@@ -134,21 +134,6 @@ async function build(tag, file, additionalDockerArguments, contextPath) {
 }
 
 /**
- * Retrieve the digest of an image. Assumes it has already been pushed to the registry.
- * @param {string} imageId - The id of the image.
- * @return {string} - The digest of the image, falsy otherwise.
- */
-async function getDigest(imageId) {
-  try {
-    return cp.execSync(`docker image inspect "${imageId}" -f '{{index .RepoDigests 0}}' | cut -d'@' -f2`)
-      .toString().trim();
-  } catch (err) {
-    return false;
-  }
-}
-
-
-/**
  * Pushes the specified local image to a the remote server. Assumes docker.login has already been called.
  * @param {string} imageId - The id of the tag being pushed. (Usually returned from docker.build)
  * @param {string} remoteTag - The tag that the image will use remotely. (Should indclude registry host, name and tags.)
@@ -167,7 +152,6 @@ function push(imageId, remoteTag) {
 module.exports = {
   login,
   build,
-  getDigest,
   push,
 };
 
@@ -190,7 +174,6 @@ const fetch = __nccwpck_require__(467);
  * @property {string} version - The tag for the docker image to be tagged with.
  * @property {string} ref - The ref of the image.
  * @property {string} commit - The GIT SHA of the commit being notified about.
- * @property {string} digest - The digest of the version.
  */
 
 module.exports = function(token, orgId, apiHost) {
@@ -5886,19 +5869,12 @@ async function runAction() {
     return;
   }
 
-  let digest = await docker.getDigest(imageId);
-  if (!digest) {
-    core.error('Unable to retrieve the digest of the image');
-    digest = '';
-  }
-
   const payload = {
     name: `${registryHost}/${orgId}/${imageName}`,
     type: 'container',
     version,
     ref,
     commit,
-    digest,
   };
 
   try {

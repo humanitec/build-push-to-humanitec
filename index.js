@@ -82,19 +82,12 @@ async function runAction() {
     return;
   }
 
-  let digest = await docker.getDigest(imageId);
-  if (!digest) {
-    core.error('Unable to retrieve the digest of the image');
-    digest = '';
-  }
-
   const payload = {
     name: `${registryHost}/${orgId}/${imageName}`,
     type: 'container',
     version,
     ref,
     commit,
-    digest,
   };
 
   try {
