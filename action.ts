@@ -14,12 +14,13 @@ export async function runAction() {
   const imageName = core.getInput('image-name') || (process.env.GITHUB_REPOSITORY || '').replace(/.*\//, '');
   const context = core.getInput('context') || core.getInput('dockerfile') || '.';
   const file = core.getInput('file') || '';
-  const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
+  let registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
   const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
   const tag = core.getInput('tag') || '';
   const commit = process.env.GITHUB_SHA || '';
   const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
   const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
+  const externalRegistryUrl = core.getInput('external-registry-url') || '';
 
   const ref = process.env.GITHUB_REF || '';
   if (!existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
@@ -44,20 +45,25 @@ export async function runAction() {
 
   const humanitec = humanitecFactory(token, orgId, apiHost);
 
-  let registryCreds;
-  try {
-    registryCreds = await humanitec.getRegistryCredentials();
-  } catch (error) {
-    core.error('Unable to fetch repository credentials.');
-    core.error('Did you add the token to your Github Secrets? ' +
+  if (externalRegistryUrl == '') {
+    let registryCreds;
+    try {
+      registryCreds = await humanitec.getRegistryCredentials();
+    } catch (error) {
+      core.error('Unable to fetch repository credentials.');
+      core.error('Did you add the token to your Github Secrets? ' +
       'http:/docs.humanitec.com/connecting-your-ci#github-actions');
-    core.setFailed('Unable to access Humanitec.');
-    return;
-  }
+      core.setFailed('Unable to access Humanitec.');
+      return;
+    }
 
-  if (!docker.login(registryCreds.username, registryCreds.password, registryHost)) {
-    core.setFailed('Unable to connect to the humanitec registry.');
-    return;
+    if (!docker.login(registryCreds.username, registryCreds.password, registryHost)) {
+      core.setFailed('Unable to connect to the humanitec registry.');
+      return;
+    }
+    registryHost = `${registryHost}/${orgId}`;
+  } else {
+    registryHost = externalRegistryUrl;
   }
 
   process.chdir((process.env.GITHUB_WORKSPACE || ''));
@@ -70,21 +76,22 @@ export async function runAction() {
   } else {
     version = commit;
   }
-  const localTag = `${orgId}/${imageName}:${version}`;
+  const imageWithVersion = `${imageName}:${version}`;
+  const localTag = `${orgId}/${imageWithVersion}`;
   const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
   if (!imageId) {
     core.setFailed('Unable build image from Dockerfile.');
     return;
   }
 
-  const remoteTag = `${registryHost}/${localTag}`;
+  const remoteTag = `${registryHost}/${imageWithVersion}`;
   if (!docker.push(imageId, remoteTag)) {
     core.setFailed('Unable to push image to registry');
     return;
   }
 
   const payload = {
-    name: `${registryHost}/${orgId}/${imageName}`,
+    name: `${registryHost}/${imageName}`,
     type: 'container',
     version,
     ref,

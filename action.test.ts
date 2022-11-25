@@ -132,4 +132,30 @@ describe('action', () => {
       ),
     );
   });
+
+  test('supports an external registry', async () => {
+    repo = 'test-image';
+    process.env['GITHUB_REPOSITORY'] = repo;
+
+    setInput('external-registry-url', 'ghcr.io/humanitec/build-push-to-humanitec');
+
+    await runAction();
+    expect(process.exitCode).toBeFalsy;
+
+    const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+
+    expect(body).toEqual(
+      expect.arrayContaining(
+        [
+          expect.objectContaining({
+            commit: commit,
+            name: `ghcr.io/humanitec/build-push-to-humanitec/${repo}`,
+          }),
+        ],
+      ),
+    );
+  });
 });

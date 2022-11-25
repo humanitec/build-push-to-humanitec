@@ -76,6 +76,20 @@ _Optional_ Use `additional-docker-arguments` if you need to provide additional a
         additional-docker-arguments: --build-arg env=staging
 ```
 
+### `external-registry-url`
+
+_Optional_ Push the image to an external container registry. This registry does not need to be [registered with Humanitec](https://docs.humanitec.com/guides/connect-ci-setup/container-registries) and authentication needs to be done before calling this action (e.g. using workload identity). 
+
+```yaml
+    uses: humanitec/build-push-to-humanitec@v1
+      with:
+        humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
+        organization: awesome-company
+        external-registry-url: europe-west3-docker.pkg.dev/gcp-project/repository
+```
+
+Will push the resulting image to `europe-west3-docker.pkg.dev/gcp-project/repository/{image-name}`.
+
 ## Outputs
 
 _None._
