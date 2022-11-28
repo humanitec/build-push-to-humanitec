@@ -88,3 +88,11 @@ uses: humanitec/build-push-to-humanitec@v1
     humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
     organization: awesome-company
 ```
+
+
+## Development
+
+Running the tests requires an Humanitec account. Once this is created, the following environment variables need to be configure:
+
+* `HUMANITEC_ORG`
+* `HUMANITEC_TOKEN`
