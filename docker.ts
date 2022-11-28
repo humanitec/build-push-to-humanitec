@@ -1,6 +1,6 @@
-const cp = require('child_process');
-const exec = require('@actions/exec');
-const chunk = require('./chunk');
+import {execSync} from 'node:child_process';
+import {exec as actionsExec} from '@actions/exec';
+import * as chunk from './chunk';
 
 /**
  * Authenticates with a remote docker registry.
@@ -9,16 +9,16 @@ const chunk = require('./chunk');
  * @param {string} server - The host to connect to to log in.
  * @return {boolean} - true if successful, otherwise false.
  */
-function login(username, password, server) {
+export const login = function(username: string, password: string, server: string): boolean {
   try {
-    cp.execSync(`docker login -u ${username} --password-stdin ${server}`, {
+    execSync(`docker login -u ${username} --password-stdin ${server}`, {
       input: password,
     });
   } catch (err) {
     return false;
   }
   return true;
-}
+};
 
 
 /**
@@ -29,7 +29,9 @@ function login(username, password, server) {
  * @param {string} contextPath - A directory of a build's context.
  * @return {string} - The container ID assuming a successful build, falsy otherwise.
  */
-async function build(tag, file, additionalDockerArguments, contextPath) {
+export const build = async function(
+  tag: string, file: string, additionalDockerArguments: string, contextPath: string,
+): Promise<string> {
   try {
     const args = ['build', '-t', tag];
     if (file != '') {
@@ -42,13 +44,13 @@ async function build(tag, file, additionalDockerArguments, contextPath) {
       }
     }
     args.push(contextPath);
-    await exec.exec('docker', args);
+    await actionsExec('docker', args);
 
-    return cp.execSync(`docker images -q "${tag}"`).toString().trim();
+    return execSync(`docker images -q "${tag}"`).toString().trim();
   } catch (err) {
-    return false;
+    return '';
   }
-}
+};
 
 /**
  * Pushes the specified local image to a the remote server. Assumes docker.login has already been called.
@@ -56,18 +58,12 @@ async function build(tag, file, additionalDockerArguments, contextPath) {
  * @param {string} remoteTag - The tag that the image will use remotely. (Should indclude registry host, name and tags.)
  * @return {boolean} - true if successful, otherwise false.
  */
-function push(imageId, remoteTag) {
+export const push = function(imageId: string, remoteTag: string): boolean {
   try {
-    cp.execSync(`docker tag "${imageId}" "${remoteTag}"`);
-    cp.execSync(`docker push "${remoteTag}"`);
+    execSync(`docker tag "${imageId}" "${remoteTag}"`);
+    execSync(`docker push "${remoteTag}"`);
   } catch (err) {
     return false;
   }
   return true;
-}
-
-module.exports = {
-  login,
-  build,
-  push,
 };

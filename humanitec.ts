@@ -1,4 +1,5 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
+
 /**
  * @typedef {Object} Credentials
  * @property {string} username - The username used to access the registry
@@ -13,7 +14,7 @@ const fetch = require('node-fetch');
  * @property {string} commit - The GIT SHA of the commit being notified about.
  */
 
-module.exports = function(token, orgId, apiHost) {
+export const humanitecFactory = function(token: string, orgId: string, apiHost: string) {
   apiHost = apiHost || 'api.humanitec.io';
 
   const validId = /^[a-z0-9][a-z0-9-]+[a-z0-9]$/;
@@ -30,7 +31,7 @@ module.exports = function(token, orgId, apiHost) {
       `https://${apiHost}/orgs/${orgId}/registries/humanitec/creds`, {
         headers: {'Authorization': `Bearer ${token}`},
       }).then((res) => {
-      if (res.ok && res.headers.get('Content-Type') && res.headers.get('Content-Type').startsWith('application/json')) {
+      if (res.ok && (res.headers.get('Content-Type') || '').startsWith('application/json')) {
         return res.json();
       }
       throw new Error('Unable to access Humanitec.');
@@ -42,7 +43,7 @@ module.exports = function(token, orgId, apiHost) {
    * @param {Payload} payload - Details about the artefact version.
    * @return {Promise} - A promise which resolves to true if successful, false otherwise.
    */
-  function addNewVersion(payload) {
+  function addNewVersion(payload: unknown): Promise<boolean> {
     return fetch(
       `https://${apiHost}/orgs/${orgId}/artefact-versions`, {
         method: 'POST',
