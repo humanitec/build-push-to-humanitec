@@ -1,7 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 5241:
+/***/ 7351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -135,7 +135,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
-const command_1 = __nccwpck_require__(5241);
+const command_1 = __nccwpck_require__(7351);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(5278);
 const os = __importStar(__nccwpck_require__(2037));
@@ -1042,7 +1042,7 @@ const os = __nccwpck_require__(2037);
 const events = __nccwpck_require__(2361);
 const child = __nccwpck_require__(2081);
 const path = __nccwpck_require__(1017);
-const io = __nccwpck_require__(7351);
+const io = __nccwpck_require__(7436);
 const ioUtil = __nccwpck_require__(1962);
 /* eslint-disable @typescript-eslint/unbound-method */
 const IS_WINDOWS = process.platform === 'win32';
@@ -2587,7 +2587,7 @@ function isUnixExecutable(stats) {
 
 /***/ }),
 
-/***/ 7351:
+/***/ 7436:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -4585,6 +4585,58 @@ exports.Headers = Headers;
 exports.Request = Request;
 exports.Response = Response;
 exports.FetchError = FetchError;
+
+
+/***/ }),
+
+/***/ 9453:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+exports.__esModule = true;
+function parseArgsStringToArgv(value, env, file) {
+    // ([^\s'"]([^\s'"]*(['"])([^\3]*?)\3)+[^\s'"]*) Matches nested quotes until the first space outside of quotes
+    // [^\s'"]+ or Match if not a space ' or "
+    // (['"])([^\5]*?)\5 or Match "quoted text" without quotes
+    // `\3` and `\5` are a backreference to the quote style (' or ") captured
+    var myRegexp = /([^\s'"]([^\s'"]*(['"])([^\3]*?)\3)+[^\s'"]*)|[^\s'"]+|(['"])([^\5]*?)\5/gi;
+    var myString = value;
+    var myArray = [];
+    if (env) {
+        myArray.push(env);
+    }
+    if (file) {
+        myArray.push(file);
+    }
+    var match;
+    do {
+        // Each call to exec returns the next regex match as an array
+        match = myRegexp.exec(myString);
+        if (match !== null) {
+            // Index 1 in the array is the captured group if it exists
+            // Index 0 is the matched text, which we use if no captured group exists
+            myArray.push(firstString(match[1], match[6], match[0]));
+        }
+    } while (match !== null);
+    return myArray;
+}
+exports["default"] = parseArgsStringToArgv;
+exports.parseArgsStringToArgv = parseArgsStringToArgv;
+// Accepts any number of arguments, and returns the first one that is a string
+// (even an empty string)
+function firstString() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    for (var i = 0; i < args.length; i++) {
+        var arg = args[i];
+        if (typeof arg === "string") {
+            return arg;
+        }
+    }
+}
 
 
 /***/ }),
@@ -7677,89 +7729,7 @@ module.exports.implForWrapper = function (wrapper) {
 
 /***/ }),
 
-/***/ 8355:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.args = void 0;
-const args = (str) => {
-    const args = [];
-    str = str.trim();
-    let currentArg = '';
-    for (let i = 0; i < str.length; i++) {
-        switch (str[i]) {
-            case '\'':
-                const endQuoteIndex = str.indexOf('\'', i + 1);
-                if (endQuoteIndex < 0) {
-                    throw 'single quote not closed';
-                }
-                currentArg = currentArg + str.substring(i + 1, endQuoteIndex);
-                i = endQuoteIndex;
-                break;
-            case '"':
-                // Double quotes can contain escaped characters
-                for (i++; i < str.length && str[i] !== '"'; i++) {
-                    if (str[i] === '\\' && (i + 1) < str.length) {
-                        i++;
-                        switch (str[i]) {
-                            case 'n':
-                                currentArg += '\n';
-                                break;
-                            case 'r':
-                                currentArg += '\r';
-                                break;
-                            case 't':
-                                currentArg += '\t';
-                                break;
-                            default:
-                                currentArg += str[i];
-                        }
-                    }
-                    else {
-                        currentArg += str[i];
-                    }
-                }
-                if (i >= str.length) {
-                    throw 'double quote not closed';
-                }
-                break;
-            case ' ':
-            case '\t':
-                args.push(currentArg);
-                currentArg = '';
-                while (i < str.length && (str[i] === ' ' || str[i] === '\t')) {
-                    i++;
-                }
-                // We will have advanced to the next non-whitespace
-                i--;
-                break;
-            case '\\':
-                i++;
-                if (i < str.length) {
-                    currentArg = currentArg + str[i];
-                }
-                else {
-                    throw 'uncompleted escape character';
-                }
-                break;
-            default:
-                currentArg = currentArg + str[i];
-                break;
-        }
-    }
-    if (currentArg != '') {
-        args.push(currentArg);
-    }
-    return args;
-};
-exports.args = args;
-
-
-/***/ }),
-
-/***/ 1723:
+/***/ 633:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -7788,10 +7758,116 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.runAction = void 0;
+const docker = __importStar(__nccwpck_require__(1723));
+const humanitec_1 = __nccwpck_require__(9362);
+const node_fs_1 = __nccwpck_require__(7561);
+const core = __importStar(__nccwpck_require__(2186));
+/**
+ * Performs the GitHub action.
+ */
+async function runAction() {
+    // Get GitHub Action inputs
+    const token = core.getInput('humanitec-token', { required: true });
+    const orgId = core.getInput('organization', { required: true });
+    const imageName = core.getInput('image-name') || (process.env.GITHUB_REPOSITORY || '').replace(/.*\//, '');
+    const context = core.getInput('context') || core.getInput('dockerfile') || '.';
+    const file = core.getInput('file') || '';
+    const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
+    const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
+    const tag = core.getInput('tag') || '';
+    const commit = process.env.GITHUB_SHA || '';
+    const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
+    const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
+    const ref = process.env.GITHUB_REF || '';
+    if (!(0, node_fs_1.existsSync)(`${process.env.GITHUB_WORKSPACE}/.git`)) {
+        core.error('It does not look like anything was checked out.');
+        core.error('Did you run a checkout step before this step? ' +
+            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+        core.setFailed('No .git directory found in workspace.');
+        return;
+    }
+    if (file != '' && !(0, node_fs_1.existsSync)(file)) {
+        core.error(`Cannot find file ${file}`);
+        core.setFailed('Cannot find file.');
+        return;
+    }
+    if (!(0, node_fs_1.existsSync)(context)) {
+        core.error(`Context path does not exist: ${context}`);
+        core.setFailed('Context path does not exist.');
+        return;
+    }
+    const humanitec = (0, humanitec_1.humanitecFactory)(token, orgId, apiHost);
+    let registryCreds;
+    try {
+        registryCreds = await humanitec.getRegistryCredentials();
+    }
+    catch (error) {
+        core.error('Unable to fetch repository credentials.');
+        core.error('Did you add the token to your Github Secrets? ' +
+            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+        core.setFailed('Unable to access Humanitec.');
+        return;
+    }
+    if (!docker.login(registryCreds.username, registryCreds.password, registryHost)) {
+        core.setFailed('Unable to connect to the humanitec registry.');
+        return;
+    }
+    process.chdir((process.env.GITHUB_WORKSPACE || ''));
+    let version = '';
+    if (autoTag && ref.includes('/tags/')) {
+        version = ref.replace(/.*\/tags\//, '');
+    }
+    else if (tag) {
+        version = tag;
+    }
+    else {
+        version = commit;
+    }
+    const localTag = `${orgId}/${imageName}:${version}`;
+    const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
+    if (!imageId) {
+        core.setFailed('Unable build image from Dockerfile.');
+        return;
+    }
+    const remoteTag = `${registryHost}/${localTag}`;
+    if (!docker.push(imageId, remoteTag)) {
+        core.setFailed('Unable to push image to registry');
+        return;
+    }
+    const payload = {
+        name: `${registryHost}/${orgId}/${imageName}`,
+        type: 'container',
+        version,
+        ref,
+        commit,
+    };
+    try {
+        await humanitec.addNewVersion(payload);
+    }
+    catch (error) {
+        core.error('Unable to notify Humanitec about build.');
+        core.error('Did you add the token to your Github Secrets? ' +
+            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+        core.setFailed('Unable to access Humanitec.');
+        return;
+    }
+}
+exports.runAction = runAction;
+
+
+/***/ }),
+
+/***/ 1723:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.push = exports.build = exports.login = void 0;
 const node_child_process_1 = __nccwpck_require__(7718);
 const exec_1 = __nccwpck_require__(1514);
-const chunk = __importStar(__nccwpck_require__(8355));
+const string_argv_1 = __nccwpck_require__(9453);
 /**
  * Authenticates with a remote docker registry.
  * @param {string} username - The username to log in with.
@@ -7826,10 +7902,8 @@ const build = async function (tag, file, additionalDockerArguments, contextPath)
             args.push('-f', file);
         }
         if (additionalDockerArguments != '') {
-            const argArray = chunk.args(additionalDockerArguments);
-            for (let i = 0; i < argArray.length; i++) {
-                args.push(argArray[i]);
-            }
+            const argArray = (0, string_argv_1.parseArgsStringToArgv)(additionalDockerArguments).filter((a) => a !== '\\');
+            args.push(...argArray);
         }
         args.push(contextPath);
         await (0, exec_1.exec)('docker', args);
@@ -7959,101 +8033,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const docker = __importStar(__nccwpck_require__(1723));
-const humanitec_1 = __nccwpck_require__(9362);
-const node_fs_1 = __nccwpck_require__(7561);
 const core = __importStar(__nccwpck_require__(2186));
-/**
- * Performs the GitHub action.
- */
-async function runAction() {
-    // Get GitHub Action inputs
-    const token = core.getInput('humanitec-token', { required: true });
-    const orgId = core.getInput('organization', { required: true });
-    const imageName = core.getInput('image-name') || (process.env.GITHUB_REPOSITORY || '').replace(/.*\//, '');
-    const context = core.getInput('context') || core.getInput('dockerfile') || '.';
-    const file = core.getInput('file') || '';
-    const registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
-    const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';
-    const tag = core.getInput('tag') || '';
-    const commit = process.env.GITHUB_SHA || '';
-    const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
-    const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
-    const ref = process.env.GITHUB_REF || '';
-    if (!(0, node_fs_1.existsSync)(`${process.env.GITHUB_WORKSPACE}/.git`)) {
-        core.error('It does not look like anything was checked out.');
-        core.error('Did you run a checkout step before this step? ' +
-            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
-        core.setFailed('No .git directory found in workspace.');
-        return;
-    }
-    if (file != '' && !(0, node_fs_1.existsSync)(file)) {
-        core.error(`Cannot find file ${file}`);
-        core.setFailed('Cannot find file.');
-        return;
-    }
-    if (!(0, node_fs_1.existsSync)(context)) {
-        core.error(`Context path does not exist: ${context}`);
-        core.setFailed('Context path does not exist.');
-        return;
-    }
-    const humanitec = (0, humanitec_1.humanitecFactory)(token, orgId, apiHost);
-    let registryCreds;
-    try {
-        registryCreds = await humanitec.getRegistryCredentials();
-    }
-    catch (error) {
-        core.error('Unable to fetch repository credentials.');
-        core.error('Did you add the token to your Github Secrets? ' +
-            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
-        core.setFailed('Unable to access Humanitec.');
-        return;
-    }
-    if (!docker.login(registryCreds.username, registryCreds.password, registryHost)) {
-        core.setFailed('Unable to connect to the humanitec registry.');
-        return;
-    }
-    process.chdir((process.env.GITHUB_WORKSPACE || ''));
-    let version = '';
-    if (autoTag && ref.includes('/tags/')) {
-        version = ref.replace(/.*\/tags\//, '');
-    }
-    else if (tag) {
-        version = tag;
-    }
-    else {
-        version = commit;
-    }
-    const localTag = `${orgId}/${imageName}:${version}`;
-    const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
-    if (!imageId) {
-        core.setFailed('Unable build image from Dockerfile.');
-        return;
-    }
-    const remoteTag = `${registryHost}/${localTag}`;
-    if (!docker.push(imageId, remoteTag)) {
-        core.setFailed('Unable to push image to registry');
-        return;
-    }
-    const payload = {
-        name: `${registryHost}/${orgId}/${imageName}`,
-        type: 'container',
-        version,
-        ref,
-        commit,
-    };
-    try {
-        await humanitec.addNewVersion(payload);
-    }
-    catch (error) {
-        core.error('Unable to notify Humanitec about build.');
-        core.error('Did you add the token to your Github Secrets? ' +
-            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
-        core.setFailed('Unable to access Humanitec.');
-        return;
-    }
-}
-runAction().catch((e) => {
+const action_1 = __nccwpck_require__(633);
+(0, action_1.runAction)().catch((e) => {
     core.error('Action failed');
     core.error(`${e.name} ${e.message}`);
     core.setFailed(`${e.name} ${e.message}`);

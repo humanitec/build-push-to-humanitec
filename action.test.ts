@@ -2,7 +2,7 @@ import {describe, expect, test, beforeEach, afterAll} from '@jest/globals';
 import {join as pathJoin} from 'node:path';
 import {runAction} from './action';
 import {randomBytes} from 'crypto';
-import fetch from 'node-fetch';
+import fetch, {RequestInit} from 'node-fetch';
 import {mkdir} from 'node:fs/promises';
 
 // Emulate https://github.com/actions/toolkit/blob/819157bf8/packages/core/src/core.ts#L128
@@ -22,6 +22,21 @@ const ensureEnv = (name: string): string => {
 };
 
 const token = ensureEnv('HUMANITEC_TOKEN');
+
+
+const humanitecReq = (path: string, options: RequestInit) => {
+  options = {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'gh-action-build-push-to-humanitec/latest',
+    },
+    ...options,
+  };
+
+  return fetch(`https://api.humanitec.io/${path}`, options);
+};
+
 const orgId = ensureEnv('HUMANITEC_ORG');
 
 const tenMinInMs = 10 * 60 * 1000;
@@ -32,15 +47,7 @@ describe('action', () => {
 
 
   afterAll(async () => {
-    const res = await fetch(
-      `https://api.humanitec.io/orgs/${orgId}/artefacts?type=container`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'gh-action-build-push-to-humanitec/latest',
-        },
-      });
+    const res = await humanitecReq(`orgs/${orgId}/artefacts?type=container`, {method: 'GET'});
 
     expect(res.status).toBe(200);
 
@@ -55,21 +62,15 @@ describe('action', () => {
         continue;
       }
 
-      const res = await fetch(
-        `https://api.humanitec.io/orgs/${orgId}/artefacts/${artefact.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'User-Agent': 'gh-action-build-push-to-humanitec/latest',
-          },
-        });
-      expect(res.status).toBe(204);
+      const res = await humanitecReq(`orgs/${orgId}/artefacts/${artefact.id}`, {method: 'DELETE'});
+
+      // Multiple tests might delete artifacts
+      expect([204, 404]).toContain(res.status);
     }
   });
 
   beforeEach(async () => {
-    await mkdir(pathJoin(fixtures, '.git'));
+    await mkdir(pathJoin(fixtures, '.git'), {recursive: true});
 
     setInput('humanitec-token', token);
     setInput('organization', orgId);
@@ -87,23 +88,47 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy;
 
-    const res = await fetch(
-      `https://api.humanitec.io/orgs/${orgId}/artefact-versions`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'gh-action-build-push-to-humanitec/latest',
-        },
-      });
-
+    const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
     expect(res.status).toBe(200);
 
     const body = await res.json();
 
     expect(body).toEqual(
       expect.arrayContaining(
-        [expect.objectContaining({commit: commit})],
+        [
+          expect.objectContaining({
+            commit: commit,
+            name: `registry.humanitec.io/${orgId}/${repo}`,
+          }),
+        ],
+      ),
+    );
+  });
+
+  test('with slashed docker build args', async () => {
+    setInput('additional-docker-arguments', `
+    --build-arg version=123 \\
+    --build-arg build_time=123 \\
+    --build-arg gitsha=132
+
+    `);
+
+    await runAction();
+    expect(process.exitCode).toBeFalsy;
+
+    const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+
+    expect(body).toEqual(
+      expect.arrayContaining(
+        [
+          expect.objectContaining({
+            commit: commit,
+            name: `registry.humanitec.io/${orgId}/${repo}`,
+          }),
+        ],
       ),
     );
   });
