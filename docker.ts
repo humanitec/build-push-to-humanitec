@@ -1,6 +1,6 @@
 import {execSync} from 'node:child_process';
 import {exec as actionsExec} from '@actions/exec';
-import * as chunk from './chunk';
+import {parseArgsStringToArgv} from 'string-argv';
 
 /**
  * Authenticates with a remote docker registry.
@@ -38,10 +38,8 @@ export const build = async function(
       args.push('-f', file);
     }
     if (additionalDockerArguments != '') {
-      const argArray = chunk.args(additionalDockerArguments);
-      for (let i=0; i < argArray.length; i++) {
-        args.push(argArray[i]);
-      }
+      const argArray = parseArgsStringToArgv(additionalDockerArguments).filter((a) => a !== '\\');
+      args.push(...argArray);
     }
     args.push(contextPath);
     await actionsExec('docker', args);
