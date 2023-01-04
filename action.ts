@@ -22,7 +22,7 @@ export async function runAction() {
   const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
   const externalRegistryUrl = core.getInput('external-registry-url') || '';
 
-  const ref = core.getInput('tag') || process.env.GITHUB_REF || '';
+  const ref = core.getInput('ref') || process.env.GITHUB_REF || '';
   if (!existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
     core.error('It does not look like anything was checked out.');
     core.error('Did you run a checkout step before this step? ' +
