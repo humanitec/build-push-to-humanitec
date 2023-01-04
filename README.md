@@ -49,6 +49,17 @@ _Optional_ Define your own tag for the docker image to be tagged with.
         organization: awesome-company
         tag: latest
 ```
+### `ref`
+
+_Optional_ Define your own ref to be sent to Humanitec instead of GitHub action's GITHUB_REF.
+
+```yaml
+    uses: humanitec/build-push-to-humanitec@v1
+      with:
+        humanitec-token: ${{ secrets.HUMANITEC_TOKEN }}
+        organization: awesome-company
+        ref: refs/heads/main
+```
 
 ### `auto-tag`
 

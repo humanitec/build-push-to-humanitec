@@ -7780,7 +7780,7 @@ async function runAction() {
     const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput('auto-tag'));
     const additionalDockerArguments = core.getInput('additional-docker-arguments') || '';
     const externalRegistryUrl = core.getInput('external-registry-url') || '';
-    const ref = process.env.GITHUB_REF || '';
+    const ref = core.getInput('ref') || process.env.GITHUB_REF || '';
     if (!(0, node_fs_1.existsSync)(`${process.env.GITHUB_WORKSPACE}/.git`)) {
         core.error('It does not look like anything was checked out.');
         core.error('Did you run a checkout step before this step? ' +

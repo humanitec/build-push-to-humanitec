@@ -14,6 +14,9 @@ inputs:
   tag:
     description: 'Use tag when you want to bring your own tag.'
     required: false
+  ref:
+    description: 'Use ref when you want to bring your own ref instead of the GitHub action supplied ref.'
+    required: false
   auto-tag:
     description: 'Use auto-tag when you want to push tags/release by their git name.'
     required: false
