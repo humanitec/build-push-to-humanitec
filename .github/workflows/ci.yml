@@ -1,19 +1,14 @@
 name: CI
-
 on: [push]
-
 jobs:
   test:
     runs-on: ubuntu-latest
-
     env:
       HUMANITEC_ORG: ${{ secrets.HUMANITEC_ORG }}
       HUMANITEC_TOKEN: ${{ secrets.HUMANITEC_TOKEN }}
-
     strategy:
       matrix:
         node-version: [16.x, 18.x]
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
