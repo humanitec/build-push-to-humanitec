@@ -1,4 +1,4 @@
-import {describe, expect, test, beforeEach, afterAll} from '@jest/globals';
+import {describe, expect, test, beforeEach, afterAll, afterEach} from '@jest/globals';
 import {join as pathJoin} from 'node:path';
 import {runAction} from './action';
 import {randomBytes} from 'crypto';
@@ -49,6 +49,7 @@ describe('action', () => {
   afterAll(async () => {
     const res = await humanitecReq(`orgs/${orgId}/artefacts?type=container`, {method: 'GET'});
 
+    // eslint-disable-next-line jest/no-standalone-expect
     expect(res.status).toBe(200);
 
     const body = await res.json();
@@ -65,6 +66,7 @@ describe('action', () => {
       const res = await humanitecReq(`orgs/${orgId}/artefacts/${artefact.id}`, {method: 'DELETE'});
 
       // Multiple tests might delete artifacts
+      // eslint-disable-next-line jest/no-standalone-expect
       expect([204, 404]).toContain(res.status);
     }
   });
@@ -72,6 +74,7 @@ describe('action', () => {
   beforeEach(async () => {
     await mkdir(pathJoin(fixtures, '.git'), {recursive: true});
 
+    setInput('ref', '');
     setInput('humanitec-token', token);
     setInput('organization', orgId);
     setInput('context', '.');
@@ -84,9 +87,13 @@ describe('action', () => {
     process.env['GITHUB_REPOSITORY'] = repo;
   });
 
+  afterEach(() => {
+    process.exitCode = undefined;
+  });
+
   test('succeeds', async () => {
     await runAction();
-    expect(process.exitCode).toBeFalsy;
+    expect(process.exitCode).toBeFalsy();
 
     const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
     expect(res.status).toBe(200);
@@ -105,6 +112,13 @@ describe('action', () => {
     );
   });
 
+  test('fails with an invalid ref', async () => {
+    setInput('ref', 'invalid');
+
+    await runAction();
+    expect(process.exitCode).toBeTruthy();
+  });
+
   test('with slashed docker build args', async () => {
     setInput('additional-docker-arguments', `
     --build-arg version=123 \\
@@ -114,7 +128,7 @@ describe('action', () => {
     `);
 
     await runAction();
-    expect(process.exitCode).toBeFalsy;
+    expect(process.exitCode).toBeFalsy();
 
     const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
     expect(res.status).toBe(200);
@@ -140,7 +154,7 @@ describe('action', () => {
     setInput('external-registry-url', 'ghcr.io/humanitec/build-push-to-humanitec');
 
     await runAction();
-    expect(process.exitCode).toBeFalsy;
+    expect(process.exitCode).toBeFalsy();
 
     const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
     expect(res.status).toBe(200);

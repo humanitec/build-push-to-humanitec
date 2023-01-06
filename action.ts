@@ -104,6 +104,13 @@ export async function runAction() {
     core.error('Unable to notify Humanitec about build.');
     core.error('Did you add the token to your Github Secrets? ' +
       'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+
+    if (error instanceof Error) {
+      core.error(error);
+    } else {
+      core.error(`Unexpected error: ${error}`);
+    }
+
     core.setFailed('Unable to access Humanitec.');
     return;
   }
