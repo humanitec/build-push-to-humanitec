@@ -85,7 +85,8 @@ export async function runAction() {
   }
 
   const remoteTag = `${registryHost}/${imageWithVersion}`;
-  if (!docker.push(imageId, remoteTag)) {
+  const pushed = await docker.push(imageId, remoteTag);
+  if (!pushed) {
     core.setFailed('Unable to push image to registry');
     return;
   }
