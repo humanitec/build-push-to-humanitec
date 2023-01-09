@@ -56,10 +56,10 @@ export const build = async function(
  * @param {string} remoteTag - The tag that the image will use remotely. (Should indclude registry host, name and tags.)
  * @return {boolean} - true if successful, otherwise false.
  */
-export const push = function(imageId: string, remoteTag: string): boolean {
+export const push = async function(imageId: string, remoteTag: string): Promise<boolean> {
   try {
-    execSync(`docker tag "${imageId}" "${remoteTag}"`);
-    execSync(`docker push "${remoteTag}"`);
+    await actionsExec('docker', ['tag', imageId, remoteTag]);
+    await actionsExec('docker', ['push', remoteTag]);
   } catch (err) {
     return false;
   }

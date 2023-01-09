@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 
+
 /**
  * @typedef {Object} Credentials
  * @property {string} username - The username used to access the registry
@@ -26,16 +27,18 @@ export const humanitecFactory = function(token: string, orgId: string, apiHost: 
    * Fetches the registry credentials from Humanitec
    * @return {Promise} - A promise wich returns a {Credentials} object.
    */
-  function getRegistryCredentials() {
-    return fetch(
-      `https://${apiHost}/orgs/${orgId}/registries/humanitec/creds`, {
-        headers: {'Authorization': `Bearer ${token}`},
-      }).then((res) => {
-      if (res.ok && (res.headers.get('Content-Type') || '').startsWith('application/json')) {
-        return res.json();
-      }
-      throw new Error('Unable to access Humanitec.');
+  async function getRegistryCredentials() {
+    const res = await fetch(`https://${apiHost}/orgs/${orgId}/registries/humanitec/creds`, {
+      headers: {'Authorization': `Bearer ${token}`},
     });
+
+    const body = await res.text();
+
+    if (!res.ok) {
+      throw new Error(`Unexpected http response ${res.status}: ${body}`);
+    }
+
+    return JSON.parse(body);
   }
 
   /**
@@ -43,17 +46,22 @@ export const humanitecFactory = function(token: string, orgId: string, apiHost: 
    * @param {Payload} payload - Details about the artefact version.
    * @return {Promise} - A promise which resolves to true if successful, false otherwise.
    */
-  function addNewVersion(payload: unknown): Promise<boolean> {
-    return fetch(
-      `https://${apiHost}/orgs/${orgId}/artefact-versions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'gh-action-build-push-to-humanitec/latest',
-        },
-        body: JSON.stringify(payload),
-      }).then((res) => res.ok);
+  async function addNewVersion(payload: unknown): Promise<void> {
+    const res = await fetch(`https://${apiHost}/orgs/${orgId}/artefact-versions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'gh-action-build-push-to-humanitec/latest',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const body = await res.text();
+
+    if (!res.ok) {
+      throw new Error(`Unexpected http response ${res.status}: ${body}`);
+    }
   }
 
   return {
