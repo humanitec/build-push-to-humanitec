@@ -61,7 +61,7 @@ _Optional_ Define your own ref to be sent to Humanitec instead of GitHub action'
         ref: refs/heads/main
 ```
 
-> **_NOTE:_**  If GitHub action trigger is `on: pull_request`, it is suggested to use `ref: refs/pr_head/${{ github.event.pull_request.head.ref }}` 
+> **_NOTE:_**  For auto-deployment to work on GitHub action trigger: `on: pull_request`, set `ref: refs/pr_head/${{ github.event.pull_request.head.ref }}` 
 
 ### `auto-tag`
 
