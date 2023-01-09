@@ -7763,6 +7763,7 @@ const docker = __importStar(__nccwpck_require__(1723));
 const humanitec_1 = __nccwpck_require__(9362);
 const node_fs_1 = __nccwpck_require__(7561);
 const core = __importStar(__nccwpck_require__(2186));
+const DOC_URL = 'https://docs.humanitec.com/guides/connect-ci-setup/connect-ci-pipelines#github-actions-workflow';
 /**
  * Performs the GitHub action.
  */
@@ -7783,8 +7784,7 @@ async function runAction() {
     const ref = core.getInput('ref') || process.env.GITHUB_REF || '';
     if (!(0, node_fs_1.existsSync)(`${process.env.GITHUB_WORKSPACE}/.git`)) {
         core.error('It does not look like anything was checked out.');
-        core.error('Did you run a checkout step before this step? ' +
-            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+        core.error(`Did you run a checkout step before this step? ${DOC_URL}`);
         core.setFailed('No .git directory found in workspace.');
         return;
     }
@@ -7806,8 +7806,7 @@ async function runAction() {
         }
         catch (error) {
             core.error('Unable to fetch repository credentials.');
-            core.error('Did you add the token to your Github Secrets? ' +
-                'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+            core.error(`Did you add the token to your Github Secrets? ${DOC_URL}`);
             core.setFailed('Unable to access Humanitec.');
             return;
         }
@@ -7839,7 +7838,8 @@ async function runAction() {
         return;
     }
     const remoteTag = `${registryHost}/${imageWithVersion}`;
-    if (!docker.push(imageId, remoteTag)) {
+    const pushed = await docker.push(imageId, remoteTag);
+    if (!pushed) {
         core.setFailed('Unable to push image to registry');
         return;
     }
@@ -7855,8 +7855,13 @@ async function runAction() {
     }
     catch (error) {
         core.error('Unable to notify Humanitec about build.');
-        core.error('Did you add the token to your Github Secrets? ' +
-            'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+        core.error(`Did you add the token to your Github Secrets? ${DOC_URL}`);
+        if (error instanceof Error) {
+            core.error(error);
+        }
+        else {
+            core.error(`Unexpected error: ${error}`);
+        }
         core.setFailed('Unable to access Humanitec.');
         return;
     }
@@ -7928,10 +7933,10 @@ exports.build = build;
  * @param {string} remoteTag - The tag that the image will use remotely. (Should indclude registry host, name and tags.)
  * @return {boolean} - true if successful, otherwise false.
  */
-const push = function (imageId, remoteTag) {
+const push = async function (imageId, remoteTag) {
     try {
-        (0, node_child_process_1.execSync)(`docker tag "${imageId}" "${remoteTag}"`);
-        (0, node_child_process_1.execSync)(`docker push "${remoteTag}"`);
+        await (0, exec_1.exec)('docker', ['tag', imageId, remoteTag]);
+        await (0, exec_1.exec)('docker', ['push', remoteTag]);
     }
     catch (err) {
         return false;
@@ -7976,23 +7981,23 @@ const humanitecFactory = function (token, orgId, apiHost) {
      * Fetches the registry credentials from Humanitec
      * @return {Promise} - A promise wich returns a {Credentials} object.
      */
-    function getRegistryCredentials() {
-        return (0, node_fetch_1.default)(`https://${apiHost}/orgs/${orgId}/registries/humanitec/creds`, {
+    async function getRegistryCredentials() {
+        const res = await (0, node_fetch_1.default)(`https://${apiHost}/orgs/${orgId}/registries/humanitec/creds`, {
             headers: { 'Authorization': `Bearer ${token}` },
-        }).then((res) => {
-            if (res.ok && (res.headers.get('Content-Type') || '').startsWith('application/json')) {
-                return res.json();
-            }
-            throw new Error('Unable to access Humanitec.');
         });
+        const body = await res.text();
+        if (!res.ok) {
+            throw new Error(`Unexpected http response ${res.status}: ${body}`);
+        }
+        return JSON.parse(body);
     }
     /**
      * Notifies Humanitec that a version has been added
      * @param {Payload} payload - Details about the artefact version.
      * @return {Promise} - A promise which resolves to true if successful, false otherwise.
      */
-    function addNewVersion(payload) {
-        return (0, node_fetch_1.default)(`https://${apiHost}/orgs/${orgId}/artefact-versions`, {
+    async function addNewVersion(payload) {
+        const res = await (0, node_fetch_1.default)(`https://${apiHost}/orgs/${orgId}/artefact-versions`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -8000,7 +8005,11 @@ const humanitecFactory = function (token, orgId, apiHost) {
                 'User-Agent': 'gh-action-build-push-to-humanitec/latest',
             },
             body: JSON.stringify(payload),
-        }).then((res) => res.ok);
+        });
+        const body = await res.text();
+        if (!res.ok) {
+            throw new Error(`Unexpected http response ${res.status}: ${body}`);
+        }
     }
     return {
         getRegistryCredentials,

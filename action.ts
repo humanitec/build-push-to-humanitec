@@ -4,6 +4,8 @@ import {humanitecFactory} from './humanitec';
 import {existsSync} from 'node:fs';
 import * as core from '@actions/core';
 
+const DOC_URL = 'https://docs.humanitec.com/guides/connect-ci-setup/connect-ci-pipelines#github-actions-workflow';
+
 /**
  * Performs the GitHub action.
  */
@@ -25,8 +27,7 @@ export async function runAction() {
   const ref = core.getInput('ref') || process.env.GITHUB_REF || '';
   if (!existsSync(`${process.env.GITHUB_WORKSPACE}/.git`)) {
     core.error('It does not look like anything was checked out.');
-    core.error('Did you run a checkout step before this step? ' +
-      'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+    core.error(`Did you run a checkout step before this step? ${DOC_URL}`);
     core.setFailed('No .git directory found in workspace.');
     return;
   }
@@ -51,8 +52,7 @@ export async function runAction() {
       registryCreds = await humanitec.getRegistryCredentials();
     } catch (error) {
       core.error('Unable to fetch repository credentials.');
-      core.error('Did you add the token to your Github Secrets? ' +
-      'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+      core.error(`Did you add the token to your Github Secrets? ${DOC_URL}`);
       core.setFailed('Unable to access Humanitec.');
       return;
     }
@@ -103,8 +103,7 @@ export async function runAction() {
     await humanitec.addNewVersion(payload);
   } catch (error) {
     core.error('Unable to notify Humanitec about build.');
-    core.error('Did you add the token to your Github Secrets? ' +
-      'http:/docs.humanitec.com/connecting-your-ci#github-actions');
+    core.error(`Did you add the token to your Github Secrets? ${DOC_URL}`);
 
     if (error instanceof Error) {
       core.error(error);
