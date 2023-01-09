@@ -61,10 +61,12 @@ _Optional_ Define your own ref to be sent to Humanitec instead of GitHub action'
         ref: refs/heads/main
 ```
 
+> **_NOTE:_**  For auto-deployment to work on GitHub action trigger: `on: pull_request`, set `ref: refs/pr_head/${{ github.event.pull_request.head.ref }}` 
+
 ### `auto-tag`
 
 _Optional_ Use `auto-tag` when you want to push tags/release by their git name (e.g. `refs/tags/MY_TAG_NAME`).  
-> CAUTION: Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
+> **_CAUTION:_** Images produced by this feature can be overwritten by branches with the same name - without a way to restore.
 
 ```yaml
     uses: humanitec/build-push-to-humanitec@v1
