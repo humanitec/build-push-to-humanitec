@@ -2,8 +2,8 @@ import {describe, expect, test, beforeEach, afterAll, afterEach} from '@jest/glo
 import {join as pathJoin} from 'node:path';
 import {runAction} from './action';
 import {randomBytes} from 'crypto';
-import fetch, {RequestInit} from 'node-fetch';
 import {mkdir} from 'node:fs/promises';
+import {createApiClient} from './humanitec';
 
 // Emulate https://github.com/actions/toolkit/blob/819157bf8/packages/core/src/core.ts#L128
 const setInput = (name: string, value: string): void => {
@@ -22,20 +22,7 @@ const ensureEnv = (name: string): string => {
 };
 
 const token = ensureEnv('HUMANITEC_TOKEN');
-
-
-const humanitecReq = (path: string, options: RequestInit) => {
-  options = {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'User-Agent': 'gh-action-build-push-to-humanitec/latest',
-    },
-    ...options,
-  };
-
-  return fetch(`https://api.humanitec.io/${path}`, options);
-};
+const humanitecClient = createApiClient('api.humanitec.io', token);
 
 const orgId = ensureEnv('HUMANITEC_ORG');
 
@@ -47,23 +34,20 @@ describe('action', () => {
 
 
   afterAll(async () => {
-    const res = await humanitecReq(`orgs/${orgId}/artefacts?type=container`, {method: 'GET'});
+    const res = await humanitecClient.orgsOrgIdArtefactsGet(orgId, 'container');
 
     // eslint-disable-next-line jest/no-standalone-expect
     expect(res.status).toBe(200);
 
-    const body = await res.json();
-
-    for (const artefact of body) {
+    for (const artefact of res.data) {
       if (!artefact.name.startsWith(`registry.humanitec.io/${orgId}/test-`)) {
         continue;
       }
 
-      if (Date.now() - Date.parse(artefact.createdAt) < tenMinInMs) {
+      if (!artefact.created_at || Date.now() - Date.parse(artefact.created_at) < tenMinInMs) {
         continue;
       }
-
-      const res = await humanitecReq(`orgs/${orgId}/artefacts/${artefact.id}`, {method: 'DELETE'});
+      const res = await humanitecClient.orgsOrgIdArtefactsArtefactIdDelete(orgId, artefact.id);
 
       // Multiple tests might delete artifacts
       // eslint-disable-next-line jest/no-standalone-expect
@@ -95,12 +79,9 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy();
 
-    const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
     expect(res.status).toBe(200);
-
-    const body = await res.json();
-
-    expect(body).toEqual(
+    expect(res.data).toEqual(
       expect.arrayContaining(
         [
           expect.objectContaining({
@@ -130,12 +111,9 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy();
 
-    const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
     expect(res.status).toBe(200);
-
-    const body = await res.json();
-
-    expect(body).toEqual(
+    expect(res.data).toEqual(
       expect.arrayContaining(
         [
           expect.objectContaining({
@@ -156,12 +134,9 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy();
 
-    const res = await humanitecReq(`orgs/${orgId}/artefact-versions`, {method: 'GET'});
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
     expect(res.status).toBe(200);
-
-    const body = await res.json();
-
-    expect(body).toEqual(
+    expect(res.data).toEqual(
       expect.arrayContaining(
         [
           expect.objectContaining({

@@ -1,10 +1,12 @@
 import * as docker from './docker';
-import {humanitecFactory} from './humanitec';
+import {createApiClient} from './humanitec';
 
 import {existsSync} from 'node:fs';
 import * as core from '@actions/core';
+import {AddArtefactVersionPayloadRequest} from '@humanitec/autogen';
 
 const DOC_URL = 'https://docs.humanitec.com/guides/connect-ci-setup/connect-ci-pipelines#github-actions-workflow';
+const humanitecRegId = 'humanitec';
 
 /**
  * Performs the GitHub action.
@@ -44,20 +46,17 @@ export async function runAction() {
     return;
   }
 
-  const humanitec = humanitecFactory(token, orgId, apiHost);
+  const humanitec = createApiClient(apiHost, token);
 
   if (externalRegistryUrl == '') {
-    let registryCreds;
-    try {
-      registryCreds = await humanitec.getRegistryCredentials();
-    } catch (error) {
-      core.error('Unable to fetch repository credentials.');
-      core.error(`Did you add the token to your Github Secrets? ${DOC_URL}`);
-      core.setFailed('Unable to access Humanitec.');
-      return;
+    const registryCreds = await humanitec.orgsOrgIdRegistriesRegIdCredsGet(orgId, humanitecRegId);
+    if (registryCreds.status != 200) {
+      throw new Error(
+        `Unexpected response fetching registry credentials: ${registryCreds.status}, ${registryCreds.data}`,
+      );
     }
 
-    if (!docker.login(registryCreds.username, registryCreds.password, registryHost)) {
+    if (!docker.login(registryCreds.data.username, registryCreds.data.password, registryHost)) {
       core.setFailed('Unable to connect to the humanitec registry.');
       return;
     }
@@ -91,7 +90,7 @@ export async function runAction() {
     return;
   }
 
-  const payload = {
+  const payload: AddArtefactVersionPayloadRequest = {
     name: `${registryHost}/${imageName}`,
     type: 'container',
     version,
@@ -100,7 +99,12 @@ export async function runAction() {
   };
 
   try {
-    await humanitec.addNewVersion(payload);
+    const versionReq = await humanitec.orgsOrgIdArtefactVersionsPost(orgId, payload);
+    if (versionReq.status != 204) {
+      throw new Error(
+        `Unexpected response creating artefact version: ${versionReq.status}, ${versionReq.data}`,
+      );
+    }
   } catch (error) {
     core.error('Unable to notify Humanitec about build.');
     core.error(`Did you add the token to your Github Secrets? ${DOC_URL}`);
