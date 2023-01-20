@@ -16,6 +16,7 @@ export async function runAction() {
   const token = core.getInput('humanitec-token', {required: true});
   const orgId = core.getInput('organization', {required: true});
   const imageName = core.getInput('image-name') || (process.env.GITHUB_REPOSITORY || '').replace(/.*\//, '');
+  const existingImage = core.getInput('existing-image') || '';
   const context = core.getInput('context') || core.getInput('dockerfile') || '.';
   const file = core.getInput('file') || '';
   let registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
@@ -76,18 +77,34 @@ export async function runAction() {
     version = commit;
   }
   const imageWithVersion = `${imageName}:${version}`;
-  const localTag = `${orgId}/${imageWithVersion}`;
-  const imageId = await docker.build(localTag, file, additionalDockerArguments, context);
-  if (!imageId) {
-    core.setFailed('Unable build image from Dockerfile.');
-    return;
+
+  let imageId;
+  if (existingImage) {
+    imageId = existingImage;
+  } else {
+    const localTag = `${orgId}/${imageWithVersion}`;
+    imageId = await docker.build(localTag, file, additionalDockerArguments, context);
+    if (!imageId) {
+      core.setFailed('Unable build image from Dockerfile.');
+      return;
+    }
   }
 
   const remoteTag = `${registryHost}/${imageWithVersion}`;
-  const pushed = await docker.push(imageId, remoteTag);
-  if (!pushed) {
-    core.setFailed('Unable to push image to registry');
-    return;
+  if (existingImage !== remoteTag) {
+    if (existingImage.startsWith(registryHost)) {
+      core.setFailed(
+        `The provided image seems to be already pushed, but the version tag is not matching.\n` +
+        `Expected: ${remoteTag}\n` +
+        `Provided: ${existingImage}`);
+      return;
+    }
+
+    const pushed = await docker.push(imageId, remoteTag);
+    if (!pushed) {
+      core.setFailed('Unable to push image to registry');
+      return;
+    }
   }
 
   const payload: AddArtefactVersionPayloadRequest = {

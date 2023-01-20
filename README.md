@@ -26,6 +26,10 @@ the following code should be used to pass it to the action:
 
 _Optional_ The name you want to use in the Docker registry. The name can only contain lowercase letters, numbers, hyphens ("-"), and underscores ("_").
 
+### `existing-image`
+
+_Optional_ Use an existing image instead of building an image. The image name needs to include a tag or digest.
+
 ### `file`
 
 _Optional_ A path to an alternative Dockerfile.
