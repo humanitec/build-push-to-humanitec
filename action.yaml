@@ -11,6 +11,10 @@ inputs:
     description: 'The name you want to refer to the image to in the Humanitec Platform.'
     required: false
     default: ''
+  existing-image:
+    description: 'Use an existing image instead of building an image. The image name needs to include a tag or digest.'
+    required: false
+    default: ''
   tag:
     description: 'Use tag when you want to bring your own tag.'
     required: false

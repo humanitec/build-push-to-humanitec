@@ -4,10 +4,20 @@ import {runAction} from './action';
 import {randomBytes} from 'crypto';
 import {mkdir} from 'node:fs/promises';
 import {createApiClient} from './humanitec';
+import {exec as actionsExec} from '@actions/exec';
 
 // Emulate https://github.com/actions/toolkit/blob/819157bf8/packages/core/src/core.ts#L128
-const setInput = (name: string, value: string): void => {
-  process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] = value;
+const setInputWithState = (state: string[], name: string, value: string): void => {
+  const envName = `INPUT_${name.replace(/ /g, '_').toUpperCase()}`;
+  process.env[envName] = value;
+
+  state.push(envName);
+};
+
+const clearInputs = (envNames: string[]) => {
+  for (const envName of envNames) {
+    process.env[envName] = '';
+  }
 };
 
 const fixtures = pathJoin(__dirname, './fixtures');
@@ -32,6 +42,10 @@ describe('action', () => {
   let repo: string;
   let commit: string;
 
+  const inputs: string[] = [];
+  const setInput = (name: string, value: string): void => {
+    return setInputWithState(inputs, name, value);
+  };
 
   afterAll(async () => {
     const res = await humanitecClient.orgsOrgIdArtefactsGet(orgId, 'container');
@@ -73,6 +87,7 @@ describe('action', () => {
 
   afterEach(() => {
     process.exitCode = undefined;
+    clearInputs(inputs);
   });
 
   test('succeeds', async () => {
@@ -146,5 +161,37 @@ describe('action', () => {
         ],
       ),
     );
+  });
+
+  test('supports pushing an already existing image', async () => {
+    actionsExec('docker', ['pull', 'hello-world:latest']);
+
+    setInput('existing-image', 'hello-world:latest');
+
+    await runAction();
+    expect(process.exitCode).toBeFalsy();
+
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
+    expect(res.status).toBe(200);
+    expect(res.data).toEqual(
+      expect.arrayContaining(
+        [
+          expect.objectContaining({
+            commit: commit,
+            name: `registry.humanitec.io/${orgId}/${repo}`,
+          }),
+        ],
+      ),
+    );
+  });
+
+  test('fails when trying to specific an image on the same registry with a different tag', async () => {
+    actionsExec('docker', ['pull', 'hello-world:latest']);
+    actionsExec('docker', ['tag', 'hello-world:latest', `registry.humanitec.io/${orgId}/hello-world:latest`]);
+
+    setInput('existing-image', `registry.humanitec.io/${orgId}/hello-world:latest`);
+
+    await runAction();
+    expect(process.exitCode).toBeTruthy();
   });
 });
