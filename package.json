@@ -29,7 +29,7 @@
   "dependencies": {
     "@actions/core": "^1.9.1",
     "@actions/exec": "^1.0.3",
-    "@humanitec/autogen": "^0.0.4",
+    "@humanitec/autogen": "^0.0.8",
     "string-argv": "^0.3.1"
   }
 }
