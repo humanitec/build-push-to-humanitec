@@ -26903,7 +26903,7 @@ async function runAction() {
             orgId,
             addArtefactVersionPayloadRequest: payload,
         });
-        if (versionReq.status != 204) {
+        if (versionReq.status != 200 && versionReq.status != 204) {
             throw new Error(`Unexpected response creating artefact version: ${versionReq.status}, ${versionReq.data}`);
         }
     }
