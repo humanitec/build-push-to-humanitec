@@ -50,7 +50,7 @@ export async function runAction() {
   const humanitec = createApiClient(apiHost, token);
 
   if (externalRegistryUrl == '') {
-    const registryCreds = await humanitec.orgsOrgIdRegistriesRegIdCredsGet(orgId, humanitecRegId);
+    const registryCreds = await humanitec.orgsOrgIdRegistriesRegIdCredsGet({orgId, regId: humanitecRegId});
     if (registryCreds.status != 200) {
       throw new Error(
         `Unexpected response fetching registry credentials: ${registryCreds.status}, ${registryCreds.data}`,
@@ -116,7 +116,10 @@ export async function runAction() {
   };
 
   try {
-    const versionReq = await humanitec.orgsOrgIdArtefactVersionsPost(orgId, payload);
+    const versionReq = await humanitec.orgsOrgIdArtefactVersionsPost({
+      orgId,
+      addArtefactVersionPayloadRequest: payload,
+    });
     if (versionReq.status != 204) {
       throw new Error(
         `Unexpected response creating artefact version: ${versionReq.status}, ${versionReq.data}`,

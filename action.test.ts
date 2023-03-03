@@ -48,7 +48,10 @@ describe('action', () => {
   };
 
   afterAll(async () => {
-    const res = await humanitecClient.orgsOrgIdArtefactsGet(orgId, 'container');
+    const res = await humanitecClient.orgsOrgIdArtefactsGet({
+      orgId,
+      type: 'container',
+    });
 
     // eslint-disable-next-line jest/no-standalone-expect
     expect(res.status).toBe(200);
@@ -61,7 +64,10 @@ describe('action', () => {
       if (!artefact.created_at || Date.now() - Date.parse(artefact.created_at) < tenMinInMs) {
         continue;
       }
-      const res = await humanitecClient.orgsOrgIdArtefactsArtefactIdDelete(orgId, artefact.id);
+      const res = await humanitecClient.orgsOrgIdArtefactsArtefactIdDelete({
+        orgId,
+        artefactId: artefact.id,
+      });
 
       // Multiple tests might delete artifacts
       // eslint-disable-next-line jest/no-standalone-expect
@@ -94,7 +100,7 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy();
 
-    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet({orgId});
     expect(res.status).toBe(200);
     expect(res.data).toEqual(
       expect.arrayContaining(
@@ -126,7 +132,7 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy();
 
-    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet({orgId});
     expect(res.status).toBe(200);
     expect(res.data).toEqual(
       expect.arrayContaining(
@@ -149,7 +155,7 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy();
 
-    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet({orgId});
     expect(res.status).toBe(200);
     expect(res.data).toEqual(
       expect.arrayContaining(
@@ -171,7 +177,7 @@ describe('action', () => {
     await runAction();
     expect(process.exitCode).toBeFalsy();
 
-    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet(orgId);
+    const res = await humanitecClient.orgsOrgIdArtefactVersionsGet({orgId});
     expect(res.status).toBe(200);
     expect(res.data).toEqual(
       expect.arrayContaining(
