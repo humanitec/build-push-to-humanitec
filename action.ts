@@ -107,8 +107,12 @@ export async function runAction() {
     }
   }
 
+  const artefactName = `${registryHost}/${imageName}`;
+
+  core.setOutput('image', remoteTag);
+
   const payload: AddArtefactVersionPayloadRequest = {
-    name: `${registryHost}/${imageName}`,
+    name: artefactName,
     type: 'container',
     version,
     ref,

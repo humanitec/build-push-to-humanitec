@@ -25,3 +25,10 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run package
+      - name: Validate updated dist
+        run: |
+          if [ "$(git diff --ignore-space-at-eol --text dist/ | wc -l)" -gt "0" ]; then
+            echo "Changed dist found, please run \"npm run package\" locally and commit the changes."
+            git diff
+            exit 1
+          fi
