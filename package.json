@@ -27,7 +27,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@actions/core": "^1.9.1",
+    "@actions/core": "^1.10.0",
     "@actions/exec": "^1.0.3",
     "@humanitec/autogen": "^0.0.8",
     "string-argv": "^0.3.1"

@@ -109,7 +109,7 @@ Will push the resulting image to `europe-west3-docker.pkg.dev/gcp-project/reposi
 
 ## Outputs
 
-_None._
+* `image` : The full name of the image that was built and pushed.
 
 ## Example usage
 
