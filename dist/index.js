@@ -26827,7 +26827,7 @@ async function runAction() {
     const orgId = core.getInput('organization', { required: true });
     const imageName = core.getInput('image-name') || (process.env.GITHUB_REPOSITORY || '').replace(/.*\//, '');
     const existingImage = core.getInput('existing-image') || '';
-    const context = core.getInput('context') || core.getInput('dockerfile') || '.';
+    const context = core.getInput('dockerfile') || core.getInput('context') || '.';
     const file = core.getInput('file') || '';
     let registryHost = core.getInput('humanitec-registry') || 'registry.humanitec.io';
     const apiHost = core.getInput('humanitec-api') || 'api.humanitec.io';

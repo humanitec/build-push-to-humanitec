@@ -2,7 +2,8 @@ name: 'Build and Push to Humanitec'
 description: 'Builds a container image from a Dockerfile and then pushes it to the Humanitec registry and notifies the platform.'
 inputs:
   humanitec-token:
-    description: 'API Token provided when you add your ci pipline in the Humanitec platform.'
+    description: |
+      API Token provided when you add your ci pipline in the Humanitec platform.
     required: true
   organization:
     description: 'The name of the organization that the image will be built for.'
@@ -25,14 +26,15 @@ inputs:
     description: 'Use auto-tag when you want to push tags/release by their git name.'
     required: false
   dockerfile:
-    description: 'Directory containing the Dockerfile. Defaults to the root of repository. The same as "context"'
+    description: 'The same as "context".'
     required: false
-    default: '.'
+    deprecationMessage: 'Use "context" instead.'
   context:
     description: 'Build context path. Defaults to the root of repository.'
     required: false
+    default: '.'
   file:
-    description: 'A path to an alternative Dockerfile. Defaults to Dockerfile in the context path'
+    description: 'Name of the Dockerfile, defaults to `$context/Dockerfile`.'
     required: false
   additional-docker-arguments:
     description: 'Additional arguments for docker (e.g.,build arguments). Defaults to empty.'

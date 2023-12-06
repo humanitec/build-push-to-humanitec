@@ -32,15 +32,15 @@ _Optional_ Use an existing image instead of building an image. The image name ne
 
 ### `file`
 
-_Optional_ A path to an alternative Dockerfile.
+_Optional_ Name of the Dockerfile, defaults to `$context/Dockerfile`.
 
 ### `context`
 
-_Optional_ Context path. Defaults to ".".
+_Optional_ Build context path. Defaults to the root of repository.
 
-### `dockerfile`
+### `dockerfile` (deprecated)
 
-_Optional_ The same as `context`.
+_Optional_ The same as `context`, use `context` instead.
 
 ### `tag`
 
