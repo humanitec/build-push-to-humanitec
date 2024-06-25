@@ -1,6 +1,6 @@
-import {execSync} from 'node:child_process';
-import {exec as actionsExec} from '@actions/exec';
-import {parseArgsStringToArgv} from 'string-argv';
+import { execSync } from "node:child_process";
+import { getExecOutput as actionsExec } from "@actions/exec";
+import { parseArgsStringToArgv } from "string-argv";
 
 /**
  * Authenticates with a remote docker registry.
@@ -9,17 +9,20 @@ import {parseArgsStringToArgv} from 'string-argv';
  * @param {string} server - The host to connect to to log in.
  * @return {boolean} - true if successful, otherwise false.
  */
-export const login = function(username: string, password: string, server: string): boolean {
+export const login = function (
+  username: string,
+  password: string,
+  server: string,
+): boolean {
   try {
     execSync(`docker login -u ${username} --password-stdin ${server}`, {
       input: password,
     });
-  } catch (err) {
+  } catch {
     return false;
   }
   return true;
 };
-
 
 /**
  * Builds the image described by the Dockerfile and tags it locally.
@@ -29,24 +32,29 @@ export const login = function(username: string, password: string, server: string
  * @param {string} contextPath - A directory of a build's context.
  * @return {string} - The container ID assuming a successful build, falsy otherwise.
  */
-export const build = async function(
-  tag: string, file: string, additionalDockerArguments: string, contextPath: string,
+export const build = async function (
+  tag: string,
+  file: string,
+  additionalDockerArguments: string,
+  contextPath: string,
 ): Promise<string> {
   try {
-    const args = ['build', '-t', tag];
-    if (file != '') {
-      args.push('-f', file);
+    const args = ["build", "-t", tag];
+    if (file != "") {
+      args.push("-f", file);
     }
-    if (additionalDockerArguments != '') {
-      const argArray = parseArgsStringToArgv(additionalDockerArguments).filter((a) => a !== '\\');
+    if (additionalDockerArguments != "") {
+      const argArray = parseArgsStringToArgv(additionalDockerArguments).filter(
+        (a) => a !== "\\",
+      );
       args.push(...argArray);
     }
     args.push(contextPath);
-    await actionsExec('docker', args);
+    await actionsExec("docker", args);
 
     return execSync(`docker images -q "${tag}"`).toString().trim();
-  } catch (err) {
-    return '';
+  } catch {
+    return "";
   }
 };
 
@@ -56,11 +64,14 @@ export const build = async function(
  * @param {string} remoteTag - The tag that the image will use remotely. (Should indclude registry host, name and tags.)
  * @return {boolean} - true if successful, otherwise false.
  */
-export const push = async function(imageId: string, remoteTag: string): Promise<boolean> {
+export const push = async function (
+  imageId: string,
+  remoteTag: string,
+): Promise<boolean> {
   try {
-    await actionsExec('docker', ['tag', imageId, remoteTag]);
-    await actionsExec('docker', ['push', remoteTag]);
-  } catch (err) {
+    await actionsExec("docker", ["tag", imageId, remoteTag]);
+    await actionsExec("docker", ["push", remoteTag]);
+  } catch {
     return false;
   }
   return true;
