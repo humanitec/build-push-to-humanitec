@@ -1,3 +1,3 @@
 FROM scratch
 
-ENV almost empty
+ENV almost=empty

@@ -1,7 +1,8 @@
 # Build Push to Humanitec Action
 
-This action builds a container image from a Dockerfile, then pushes the image to the Humanitec registry and finally
-notifies the Humanitec platform that a new version is available.
+This action builds a container image from a Dockerfile, then pushes the image to the Humanitec registry and finally notifies the Humanitec platform that a new version is available.
+
+Dumb test to check CI.
 
 ## Inputs
 
