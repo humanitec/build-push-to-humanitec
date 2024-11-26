@@ -16,6 +16,9 @@ inputs:
     description: 'Use an existing image instead of building an image. The image name needs to include a tag or digest.'
     required: false
     default: ''
+  commit:
+    description: 'Use commit when you want to specify non-default commit SHA (GITHUB_SHA).'
+    required: false
   tag:
     description: 'Use tag when you want to bring your own tag.'
     required: false

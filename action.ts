@@ -27,7 +27,7 @@ export async function runAction() {
     core.getInput("humanitec-registry") || "registry.humanitec.io";
   const apiHost = core.getInput("humanitec-api") || "api.humanitec.io";
   const tag = core.getInput("tag") || "";
-  const commit = process.env.GITHUB_SHA || "";
+  const commit = core.getInput("commit") || process.env.GITHUB_SHA || "";
   const autoTag = /^\s*(true|1)\s*$/i.test(core.getInput("auto-tag"));
   const additionalDockerArguments =
     core.getInput("additional-docker-arguments") || "";
