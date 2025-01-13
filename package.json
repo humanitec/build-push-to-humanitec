@@ -14,20 +14,20 @@
   "license": "ISC",
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.14.8",
-    "@vercel/ncc": "^0.38.1",
-    "eslint": "^9.5.0",
+    "@types/node": "^22.10.5",
+    "@vercel/ncc": "^0.38.3",
+    "eslint": "^9.18.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "typescript": "^5.0.2",
-    "typescript-eslint": "^8.0.0-alpha.30",
-    "vitest": "^1.6.0"
+    "eslint-plugin-prettier": "^5.2.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.19.1",
+    "vitest": "^2.1.8"
   },
   "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/exec": "^1.0.3",
-    "@humanitec/autogen": "^0.0.11",
-    "string-argv": "^0.3.1"
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "@humanitec/autogen": "^0.1.1",
+    "string-argv": "^0.3.2"
   },
   "private": true
 }

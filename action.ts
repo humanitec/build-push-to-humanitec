@@ -6,7 +6,7 @@ import * as core from "@actions/core";
 import { CreateArtefactVersion } from "@humanitec/autogen";
 
 const DOC_URL =
-  "https://docs.humanitec.com/guides/connect-ci-setup/connect-ci-pipelines#github-actions-workflow";
+  "https://developer.humanitec.com/integration-and-extensions/ci-cd/overview/";
 const humanitecRegId = "humanitec";
 
 /**
