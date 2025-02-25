@@ -29,5 +29,8 @@
     "@humanitec/autogen": "^0.1.1",
     "string-argv": "^0.3.2"
   },
+  "overrides": {
+    "esbuild": "^0.25.0"
+  },
   "private": true
 }
