@@ -150,6 +150,7 @@ export async function runAction() {
 
     if (error instanceof Error) {
       core.error(error);
+      core.error((await error.response.json()).message);
     } else {
       core.error(`Unexpected error: ${error}`);
     }
