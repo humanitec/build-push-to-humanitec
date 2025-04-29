@@ -45193,19 +45193,18 @@ async function runAction() {
         version = commit;
     }
     const imageWithVersion = `${imageName}:${version}`;
+    const remoteTag = `${registryHost}/${imageWithVersion}`;
     let imageId;
     if (existingImage) {
         imageId = existingImage;
     }
     else {
-        const localTag = `${orgId}/${imageWithVersion}`;
-        imageId = await build(localTag, file, additionalDockerArguments, context);
+        imageId = await build(remoteTag, file, additionalDockerArguments, context);
         if (!imageId) {
             core.setFailed("Unable build image from Dockerfile.");
             return;
         }
     }
-    const remoteTag = `${registryHost}/${imageWithVersion}`;
     if (existingImage) {
         const pushed = await push(imageId, remoteTag);
         if (!pushed) {

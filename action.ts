@@ -91,14 +91,14 @@ export async function runAction() {
     version = commit;
   }
   const imageWithVersion = `${imageName}:${version}`;
+  const remoteTag = `${registryHost}/${imageWithVersion}`;
 
   let imageId;
   if (existingImage) {
     imageId = existingImage;
   } else {
-    const localTag = `${orgId}/${imageWithVersion}`;
     imageId = await docker.build(
-      localTag,
+      remoteTag,
       file,
       additionalDockerArguments,
       context,
@@ -109,7 +109,6 @@ export async function runAction() {
     }
   }
 
-  const remoteTag = `${registryHost}/${imageWithVersion}`;
   if (existingImage) {
     const pushed = await docker.push(imageId, remoteTag);
     if (!pushed) {
