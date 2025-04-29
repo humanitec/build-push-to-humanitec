@@ -27506,7 +27506,7 @@ const login = function (username, password, server) {
  */
 const build = async function (tag, file, additionalDockerArguments, contextPath) {
     try {
-        const args = ["buildx", "build", "-t", tag, "--load"];
+        const args = ["buildx", "build", "-t", tag, "--push"];
         if (file != "") {
             args.push("-f", file);
         }
@@ -45206,13 +45206,7 @@ async function runAction() {
         }
     }
     const remoteTag = `${registryHost}/${imageWithVersion}`;
-    if (existingImage !== remoteTag) {
-        if (existingImage.startsWith(registryHost)) {
-            core.setFailed(`The provided image seems to be already pushed, but the version tag is not matching.\n` +
-                `Expected: ${remoteTag}\n` +
-                `Provided: ${existingImage}`);
-            return;
-        }
+    if (existingImage) {
         const pushed = await push(imageId, remoteTag);
         if (!pushed) {
             core.setFailed("Unable to push image to registry");
