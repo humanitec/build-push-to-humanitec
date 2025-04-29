@@ -45194,23 +45194,15 @@ async function runAction() {
     }
     const imageWithVersion = `${imageName}:${version}`;
     const remoteTag = `${registryHost}/${imageWithVersion}`;
-    let imageId;
     if (existingImage) {
-        imageId = existingImage;
-    }
-    else {
-        imageId = await build(remoteTag, file, additionalDockerArguments, context);
-        if (!imageId) {
-            core.setFailed("Unable build image from Dockerfile.");
-            return;
-        }
-    }
-    if (existingImage) {
-        const pushed = await push(imageId, remoteTag);
+        const pushed = await push(existingImage, remoteTag);
         if (!pushed) {
             core.setFailed("Unable to push image to registry");
             return;
         }
+    }
+    else {
+        await build(remoteTag, file, additionalDockerArguments, context);
     }
     const artefactName = `${registryHost}/${imageName}`;
     core.setOutput("image", remoteTag);
