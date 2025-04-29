@@ -100,12 +100,7 @@ export async function runAction() {
       return;
     }
   } else {
-    await docker.build(
-      remoteTag,
-      file,
-      additionalDockerArguments,
-      context,
-    );
+    await docker.build(remoteTag, file, additionalDockerArguments, context);
   }
 
   const artefactName = `${registryHost}/${imageName}`;
