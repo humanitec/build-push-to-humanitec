@@ -45195,6 +45195,12 @@ async function runAction() {
     const imageWithVersion = `${imageName}:${version}`;
     const remoteTag = `${registryHost}/${imageWithVersion}`;
     if (existingImage) {
+        if (existingImage.startsWith(registryHost)) {
+            core.setFailed(`The provided image seems to be already pushed, but the version tag is not matching.\n` +
+                `Expected: ${remoteTag}\n` +
+                `Provided: ${existingImage}`);
+            return;
+        }
         const pushed = await push(existingImage, remoteTag);
         if (!pushed) {
             core.setFailed("Unable to push image to registry");
