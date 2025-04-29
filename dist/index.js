@@ -27506,7 +27506,7 @@ const login = function (username, password, server) {
  */
 const build = async function (tag, file, additionalDockerArguments, contextPath) {
     try {
-        const args = ["build", "-t", tag];
+        const args = ["buildx", "build", "-t", tag];
         if (file != "") {
             args.push("-f", file);
         }
