@@ -91,26 +91,9 @@ export async function runAction() {
     version = commit;
   }
   const imageWithVersion = `${imageName}:${version}`;
-
-  let imageId;
-  if (existingImage) {
-    imageId = existingImage;
-  } else {
-    const localTag = `${orgId}/${imageWithVersion}`;
-    imageId = await docker.build(
-      localTag,
-      file,
-      additionalDockerArguments,
-      context,
-    );
-    if (!imageId) {
-      core.setFailed("Unable build image from Dockerfile.");
-      return;
-    }
-  }
-
   const remoteTag = `${registryHost}/${imageWithVersion}`;
-  if (existingImage !== remoteTag) {
+
+  if (existingImage) {
     if (existingImage.startsWith(registryHost)) {
       core.setFailed(
         `The provided image seems to be already pushed, but the version tag is not matching.\n` +
@@ -119,12 +102,13 @@ export async function runAction() {
       );
       return;
     }
-
-    const pushed = await docker.push(imageId, remoteTag);
+    const pushed = await docker.push(existingImage, remoteTag);
     if (!pushed) {
       core.setFailed("Unable to push image to registry");
       return;
     }
+  } else {
+    await docker.build(remoteTag, file, additionalDockerArguments, context);
   }
 
   const artefactName = `${registryHost}/${imageName}`;

@@ -39,7 +39,7 @@ export const build = async function (
   contextPath: string,
 ): Promise<string> {
   try {
-    const args = ["buildx", "build", "-t", tag];
+    const args = ["buildx", "build", "-t", tag, "--push"];
     if (file != "") {
       args.push("-f", file);
     }

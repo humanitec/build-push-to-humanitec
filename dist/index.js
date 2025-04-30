@@ -27506,7 +27506,7 @@ const login = function (username, password, server) {
  */
 const build = async function (tag, file, additionalDockerArguments, contextPath) {
     try {
-        const args = ["buildx", "build", "-t", tag];
+        const args = ["buildx", "build", "-t", tag, "--push"];
         if (file != "") {
             args.push("-f", file);
         }
@@ -45193,31 +45193,22 @@ async function runAction() {
         version = commit;
     }
     const imageWithVersion = `${imageName}:${version}`;
-    let imageId;
-    if (existingImage) {
-        imageId = existingImage;
-    }
-    else {
-        const localTag = `${orgId}/${imageWithVersion}`;
-        imageId = await build(localTag, file, additionalDockerArguments, context);
-        if (!imageId) {
-            core.setFailed("Unable build image from Dockerfile.");
-            return;
-        }
-    }
     const remoteTag = `${registryHost}/${imageWithVersion}`;
-    if (existingImage !== remoteTag) {
+    if (existingImage) {
         if (existingImage.startsWith(registryHost)) {
             core.setFailed(`The provided image seems to be already pushed, but the version tag is not matching.\n` +
                 `Expected: ${remoteTag}\n` +
                 `Provided: ${existingImage}`);
             return;
         }
-        const pushed = await push(imageId, remoteTag);
+        const pushed = await push(existingImage, remoteTag);
         if (!pushed) {
             core.setFailed("Unable to push image to registry");
             return;
         }
+    }
+    else {
+        await build(remoteTag, file, additionalDockerArguments, context);
     }
     const artefactName = `${registryHost}/${imageName}`;
     core.setOutput("image", remoteTag);
