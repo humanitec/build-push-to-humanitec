@@ -14,7 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.1.0",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.1.5",
