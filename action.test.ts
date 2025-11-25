@@ -60,7 +60,7 @@ describe("action", () => {
   };
 
   afterAll(async () => {
-    const res = await humanitecClient.listArtefactVersionsInOrg({
+    const res = await humanitecClient.listArtefacts({
       orgId,
       type: "container",
     });
