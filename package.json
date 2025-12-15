@@ -16,7 +16,7 @@
     "@tsconfig/node20": "^20.1.8",
     "@types/node": "^24.10.1",
     "@vercel/ncc": "^0.38.4",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "typescript": "^5.9.3",
