@@ -7,6 +7,10 @@ updates:
     commit-message:
       prefix: "build"
       include: "scope"
+    groups:
+      actions:
+        patterns:
+          - '@actions/*'
   - package-ecosystem: github-actions
     directory: /
     schedule:
