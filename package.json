@@ -24,8 +24,8 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
-    "@actions/core": "^2.0.1",
-    "@actions/exec": "^2.0.0",
+    "@actions/core": "^3.0.0",
+    "@actions/exec": "^3.0.0",
     "@humanitec/autogen": "^0.1.1",
     "string-argv": "^0.3.2"
   },
