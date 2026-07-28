@@ -2,8 +2,6 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /
-    # Disable updates except for vulnerabilities
-    open-pull-requests-limit: 0
     schedule:
       interval: weekly
     commit-message:
@@ -15,8 +13,6 @@ updates:
           - '@actions/*'
   - package-ecosystem: github-actions
     directory: /
-    # Disable updates except for vulnerabilities
-    open-pull-requests-limit: 0
     schedule:
       interval: weekly
     commit-message:
