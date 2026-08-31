@@ -186,7 +186,7 @@ describe("action", () => {
   });
 
   test("supports pushing an already existing image", async () => {
-    actionsExec("docker", ["pull", "hello-world:latest"]);
+    await actionsExec("docker", ["pull", "hello-world:latest"]);
 
     setInput("existing-image", "hello-world:latest");
 
@@ -205,8 +205,8 @@ describe("action", () => {
   });
 
   test("fails when trying to specific an image on the same registry with a different tag", async () => {
-    actionsExec("docker", ["pull", "hello-world:latest"]);
-    actionsExec("docker", [
+    await actionsExec("docker", ["pull", "hello-world:latest"]);
+    await actionsExec("docker", [
       "tag",
       "hello-world:latest",
       `registry.humanitec.io/${orgId}/hello-world:latest`,
