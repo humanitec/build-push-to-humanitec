@@ -162,6 +162,22 @@ describe("action", () => {
     );
   });
 
+  test("fails when the docker build fails", async () => {
+    setInput("file", pathJoin(fixtures, "failing", "Dockerfile"));
+
+    await runAction();
+    expect(process.exitCode).toBeTruthy();
+
+    const res = await humanitecClient.listArtefactVersionsInOrg({ orgId });
+    expect(res).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          commit: commit,
+        }),
+      ]),
+    );
+  });
+
   test("supports an external registry", async () => {
     repo = "test-image";
     process.env["GITHUB_REPOSITORY"] = repo;
