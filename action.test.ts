@@ -5,6 +5,7 @@ import {
   beforeEach,
   afterAll,
   afterEach,
+  vi,
 } from "vitest";
 import { join as pathJoin } from "node:path";
 import { runAction } from "./action.js";
@@ -157,6 +158,31 @@ describe("action", () => {
         expect.objectContaining({
           commit: commit,
           name: `registry.humanitec.io/${orgId}/${repo}`,
+        }),
+      ]),
+    );
+  });
+
+  test("fails when the docker build fails", async () => {
+    setInput("file", pathJoin(fixtures, "failing", "Dockerfile"));
+    const stdout = vi.spyOn(process.stdout, "write");
+
+    let output: string;
+    try {
+      await runAction();
+    } finally {
+      output = stdout.mock.calls.map(([chunk]) => String(chunk)).join("");
+      stdout.mockRestore();
+    }
+    expect(process.exitCode).toBeTruthy();
+    // core.setFailed writes "::error::<message>"; make sure we failed on the build itself
+    expect(output).toContain("::error::Unable to build and push image");
+
+    const res = await humanitecClient.listArtefactVersionsInOrg({ orgId });
+    expect(res).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          commit: commit,
         }),
       ]),
     );

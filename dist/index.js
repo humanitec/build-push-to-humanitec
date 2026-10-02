@@ -31249,12 +31249,12 @@ const login = function (username, password, server) {
     return true;
 };
 /**
- * Builds the image described by the Dockerfile and tags it locally.
+ * Builds the image described by the Dockerfile and pushes it to the remote registry.
  * @param {string} tag - The local tag to use for the built image.
  * @param {string} file - A path to an alternative dockerfile.
  * @param {string} additionalDockerArguments - Additional docker arguments
  * @param {string} contextPath - A directory of a build's context.
- * @return {string} - The container ID assuming a successful build, falsy otherwise.
+ * @return {boolean} - true if successful, otherwise false.
  */
 const build = async function (tag, file, additionalDockerArguments, contextPath) {
     try {
@@ -31268,11 +31268,11 @@ const build = async function (tag, file, additionalDockerArguments, contextPath)
         }
         args.push(contextPath);
         await getExecOutput("docker", args);
-        return (0,external_node_child_process_namespaceObject.execSync)(`docker images -q "${tag}"`).toString().trim();
     }
     catch {
-        return "";
+        return false;
     }
+    return true;
 };
 /**
  * Pushes the specified local image to a the remote server. Assumes docker.login has already been called.
@@ -48960,7 +48960,11 @@ async function runAction() {
         }
     }
     else {
-        await build(remoteTag, file, additionalDockerArguments, context);
+        const built = await build(remoteTag, file, additionalDockerArguments, context);
+        if (!built) {
+            setFailed("Unable to build and push image");
+            return;
+        }
     }
     const artefactName = `${registryHost}/${imageName}`;
     setOutput("image", remoteTag);

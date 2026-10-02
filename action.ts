@@ -108,7 +108,16 @@ export async function runAction() {
       return;
     }
   } else {
-    await docker.build(remoteTag, file, additionalDockerArguments, context);
+    const built = await docker.build(
+      remoteTag,
+      file,
+      additionalDockerArguments,
+      context,
+    );
+    if (!built) {
+      core.setFailed("Unable to build and push image");
+      return;
+    }
   }
 
   const artefactName = `${registryHost}/${imageName}`;

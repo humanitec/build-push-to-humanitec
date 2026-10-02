@@ -25,19 +25,19 @@ export const login = function (
 };
 
 /**
- * Builds the image described by the Dockerfile and tags it locally.
+ * Builds the image described by the Dockerfile and pushes it to the remote registry.
  * @param {string} tag - The local tag to use for the built image.
  * @param {string} file - A path to an alternative dockerfile.
  * @param {string} additionalDockerArguments - Additional docker arguments
  * @param {string} contextPath - A directory of a build's context.
- * @return {string} - The container ID assuming a successful build, falsy otherwise.
+ * @return {boolean} - true if successful, otherwise false.
  */
 export const build = async function (
   tag: string,
   file: string,
   additionalDockerArguments: string,
   contextPath: string,
-): Promise<string> {
+): Promise<boolean> {
   try {
     const args = ["buildx", "build", "-t", tag, "--push"];
     if (file != "") {
@@ -51,11 +51,10 @@ export const build = async function (
     }
     args.push(contextPath);
     await actionsExec("docker", args);
-
-    return execSync(`docker images -q "${tag}"`).toString().trim();
   } catch {
-    return "";
+    return false;
   }
+  return true;
 };
 
 /**
